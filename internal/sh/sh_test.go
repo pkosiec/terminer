@@ -10,13 +10,15 @@ import (
 )
 
 func TestExec(t *testing.T) {
-	out, err := sh.Exec("echo 'Foo'")
+	s := sh.New()
+	out, err := s.Exec("echo 'Foo'")
 	require.NoError(t, err)
 	assert.Equal(t, "Foo\n", out)
 }
 
 func TestExecInDir(t *testing.T) {
-	out, err := sh.ExecInDir("pwd", "/")
+	s := sh.New()
+	out, err := s.ExecInDir("pwd", "/")
 	require.NoError(t, err)
 	assert.Equal(t, "/\n", out)
 }
