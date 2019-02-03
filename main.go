@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	path := "./recipes/fish.yaml"
+	path := "./recipes/test.yaml"
 
 	r, err := recipe.From(path)
 	exitOnError(err)
@@ -17,6 +17,11 @@ func main() {
 	exitOnError(err)
 
 	err = i.Install()
+	exitOnError(err)
+
+	log.Printf("============\n\n")
+
+	err = i.Rollback()
 	exitOnError(err)
 }
 

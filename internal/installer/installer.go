@@ -1,7 +1,7 @@
 package installer
 
 import (
-	"fmt"
+	"github.com/pkosiec/terminer/internal/printer"
 	"log"
 
 	"github.com/pkg/errors"
@@ -11,6 +11,7 @@ import (
 
 type Installer struct {
 	r *recipe.Recipe
+	sh sh.Sh
 }
 
 func New(r *recipe.Recipe) (*Installer, error) {
@@ -18,28 +19,30 @@ func New(r *recipe.Recipe) (*Installer, error) {
 		return nil, errors.New("")
 	}
 
-	if err := recipe.ValidateCompatibility(*r); err != nil {
-		return nil, fmt.Errorf("Recipe is incompatible with your OS %s. It requires %s operating system", r.OS)
+	if err := r.Validate(); err != nil {
+		return nil, err
 	}
 
 	return &Installer{
 		r: r,
+		sh: sh.New(),
 	}, nil
 }
 
-func (i *Installer) Install() error {
-	log.Printf("Installing recipe %s", i.r.Name)
-	log.Printf("Description: %s", i.r.Description)
-	stages := i.r.Stages
-	stagesCount := len(stages)
+func (installer *Installer) Install() error {
+	printer.RecipeInfo(installer.r, "Installing",)
 
-	for stageNo, stage := range stages {
-		log.Println("[%s/%s] STAGE %s", stageNo+1, stagesCount, stage.Name)
+	stages := installer.r.Stages
+	stagesLen := len(stages)
 
-		stepsCount := len(stage.Steps)
-		for stepNo, step := range stage.Steps {
-			log.Println(">> [%s/%s] STEP %s", stepNo+1, stepsCount, step.Name)
-			res, err := sh.Exec(step.Command)
+	for stageIndex, stage := range stages {
+		printer.Stage(stage, stageIndex, stagesLen)
+
+		stepsLen := len(stage.Steps)
+		for stepIndex, step := range stage.Steps {
+			printer.Step(step, stepIndex, stepsLen)
+
+			res, err := installer.sh.Exec(step.Command)
 			if err != nil {
 				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
 			}
@@ -51,6 +54,32 @@ func (i *Installer) Install() error {
 	return nil
 }
 
-func (i *Installer) Rollback() {
+func (installer *Installer) Rollback() error {
+	printer.RecipeInfo(installer.r, "Uninstalling")
 
+	stages := installer.r.Stages
+	stagesLen := len(stages)
+
+	for i := stagesLen; i > 0; i-- {
+		stage := stages[i-1]
+		stageIndex := stagesLen-i
+		printer.Stage(stage, stageIndex, stagesLen)
+
+		stepsLen := len(stage.Steps)
+		for j := stepsLen; j > 0; j-- {
+			step := stage.Steps[j-1]
+			stepIndex := stepsLen-j
+
+			printer.Step(step, stepIndex, stepsLen)
+
+			res, err := installer.sh.Exec(step.Rollback)
+			if err != nil {
+				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+			}
+
+			log.Printf("%s\n", res)
+		}
+	}
+
+	return nil
 }

@@ -123,7 +123,8 @@ func fixRecipe(os string) *recipe.Recipe {
 					},
 				},
 			},
-			{Name: "Stage 2",
+			{
+				Name:        "Stage 2",
 				Description: "Stage 2 description",
 				ReadMoreURL: "https://stage2.example.com",
 				Steps: []recipe.Step{
@@ -143,5 +144,4 @@ func fixRecipe(os string) *recipe.Recipe {
 			},
 		},
 	}
-
 }
