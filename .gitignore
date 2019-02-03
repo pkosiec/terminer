@@ -13,3 +13,6 @@
 
 # IntelliJ IDEA
 .idea
+
+# Code coverage
+coverage.txt
