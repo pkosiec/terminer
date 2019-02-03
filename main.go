@@ -10,7 +10,7 @@ import (
 func main() {
 	path := "./recipes/fish.yaml"
 
-	r, err := recipe.Load(path)
+	r, err := recipe.From(path)
 	exitOnError(err)
 
 	i, err := installer.New(r)
