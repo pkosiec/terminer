@@ -1,28 +1,12 @@
 package main
 
 import (
+	"github.com/pkosiec/terminer/cmd"
 	"log"
-
-	"github.com/pkosiec/terminer/internal/installer"
-	"github.com/pkosiec/terminer/internal/recipe"
 )
 
 func main() {
-	path := "./recipes/test.yaml"
-
-	r, err := recipe.FromPath(path)
-	exitOnError(err)
-
-	i, err := installer.New(r)
-	exitOnError(err)
-
-	err = i.Install()
-	exitOnError(err)
-
-	log.Printf("============\n\n")
-
-	err = i.Rollback()
-	exitOnError(err)
+	cmd.Execute()
 }
 
 func exitOnError(err error) {
