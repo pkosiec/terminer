@@ -3,6 +3,7 @@ package recipe
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -30,19 +31,48 @@ type Step struct {
 	Rollback    string
 }
 
-func From(path string) (*Recipe, error) {
+func FromPath(path string) (*Recipe, error) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while reading file %s", path)
 	}
 
-	var recipe *Recipe
-	err = yaml.Unmarshal(yamlFile, &recipe)
+	recipe, err := unmarshallRecipe(yamlFile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while loading recipe from file %s", path)
 	}
 
 	return recipe, nil
+}
+
+func FromURL(url string) (*Recipe, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, errors.Wrapf(err, "while downloading file from URL %s", url)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Invalid status code while downloading file from URL %s: %d. Expected: %d", url, res.StatusCode, http.StatusOK)
+	}
+
+	bytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "while reading response body while downloading file from URL %s", url)
+	}
+
+	recipe, err := unmarshallRecipe(bytes)
+	if err != nil {
+		return nil, errors.Wrapf(err, "while loading recipe from URL %s", url)
+	}
+
+	return recipe, nil
+}
+
+func unmarshallRecipe(bytes []byte) (*Recipe, error) {
+	var recipe *Recipe
+	err := yaml.Unmarshal(bytes, &recipe)
+	return recipe, err
 }
 
 func (r *Recipe) Validate() error {

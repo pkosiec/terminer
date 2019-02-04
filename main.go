@@ -10,7 +10,7 @@ import (
 func main() {
 	path := "./recipes/test.yaml"
 
-	r, err := recipe.From(path)
+	r, err := recipe.FromPath(path)
 	exitOnError(err)
 
 	i, err := installer.New(r)
