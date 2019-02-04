@@ -48,13 +48,45 @@ func TestFromURL(t *testing.T) {
 		assert.Equal(t, expected, r)
 	})
 
-	t.Run("Error", func(t *testing.T) {
+	t.Run("Not existing path", func(t *testing.T) {
+		_, err := recipe.FromURL("http://foo-bar.not-existing.url")
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "while requesting")
+	})
+
+	t.Run("Server Error", func(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "", true)
 		defer server.Close()
 
 		_, err := recipe.FromURL(server.URL)
 
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Invalid status code")
+	})
+
+	t.Run("Error during reading response body", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Length", "1")
+		}))
+		defer server.Close()
+
+		_, err := recipe.FromURL(server.URL)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "while reading response body")
+	})
+
+	t.Run("Empty response body", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+		}))
+		defer server.Close()
+
+		_, err := recipe.FromURL(server.URL)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Empty body")
 	})
 
 	t.Run("Invalid File", func(t *testing.T) {
@@ -63,6 +95,7 @@ func TestFromURL(t *testing.T) {
 
 		_, err := recipe.FromURL(server.URL)
 
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while loading recipe from URL")
 	})
 }

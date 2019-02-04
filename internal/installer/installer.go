@@ -16,7 +16,7 @@ type Installer struct {
 
 func New(r *recipe.Recipe) (*Installer, error) {
 	if r == nil {
-		return nil, errors.New("")
+		return nil, errors.New("Recipe is empty")
 	}
 
 	if err := r.Validate(); err != nil {

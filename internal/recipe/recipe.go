@@ -48,7 +48,7 @@ func FromPath(path string) (*Recipe, error) {
 func FromURL(url string) (*Recipe, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return nil, errors.Wrapf(err, "while downloading file from URL %s", url)
+		return nil, errors.Wrapf(err, "while requesting recipe from URL %s", url)
 	}
 	defer res.Body.Close()
 
@@ -59,6 +59,10 @@ func FromURL(url string) (*Recipe, error) {
 	bytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while reading response body while downloading file from URL %s", url)
+	}
+
+	if len(bytes) == 0 {
+		return nil, fmt.Errorf("Empty body while downloading file from URL %s", url)
 	}
 
 	recipe, err := unmarshallRecipe(bytes)

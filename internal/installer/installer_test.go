@@ -11,9 +11,36 @@ import (
 	"testing"
 )
 
+func TestNew(t *testing.T) {
+	t.Run("Empty recipe", func(t *testing.T) {
+		var r *recipe.Recipe
+
+		_, err := installer.New(r)
+
+		require.Error(t, err)
+	})
+
+	t.Run("Invalid recipe", func(t *testing.T) {
+		r := fixRecipe("testos")
+
+		_, err := installer.New(r)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Invalid operating system")
+	})
+
+	t.Run("Valid recipe", func(t *testing.T) {
+		r := fixRecipe(runtime.GOOS)
+
+		_, err := installer.New(r)
+
+		require.NoError(t, err)
+	})
+}
+
 func TestInstaller_Install(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		r := fixRecipe()
+		r := fixRecipe(runtime.GOOS)
 
 		i, err := installer.New(r)
 		require.NoError(t, err)
@@ -33,7 +60,7 @@ func TestInstaller_Install(t *testing.T) {
 	// Should exit after failed step
 	t.Run("Error", func(t *testing.T) {
 		testErr := errors.New("Test Err")
-		r := fixRecipe()
+		r := fixRecipe(runtime.GOOS)
 
 		i, err := installer.New(r)
 		require.NoError(t, err)
@@ -51,7 +78,7 @@ func TestInstaller_Install(t *testing.T) {
 
 func TestInstaller_Rollback(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		r := fixRecipe()
+		r := fixRecipe(runtime.GOOS)
 
 		i, err := installer.New(r)
 		require.NoError(t, err)
@@ -71,7 +98,7 @@ func TestInstaller_Rollback(t *testing.T) {
 	// Should exit after failed step
 	t.Run("Error", func(t *testing.T) {
 		testErr := errors.New("Test Err")
-		r := fixRecipe()
+		r := fixRecipe(runtime.GOOS)
 
 		i, err := installer.New(r)
 		require.NoError(t, err)
@@ -87,9 +114,9 @@ func TestInstaller_Rollback(t *testing.T) {
 	})
 }
 
-func fixRecipe() *recipe.Recipe {
+func fixRecipe(os string) *recipe.Recipe {
 	return &recipe.Recipe{
-		OS:          runtime.GOOS,
+		OS:          os,
 		Name:        "Recipe",
 		Description: "Recipe Description",
 		Stages: []recipe.Stage{
