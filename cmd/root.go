@@ -14,7 +14,9 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "terminer",
 	Short: "Upgrade your terminal experience",
-	Long: `TODO
+	Long: `Terminer is an cross-platform installer for terminal presets.
+Install Fish or ZSH shell packed with useful plugins and
+sleek prompts. Use one of starter recipes or make yours.
 `,
 }
 
