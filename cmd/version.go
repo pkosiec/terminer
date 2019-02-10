@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"github.com/pkosiec/terminer/internal/metadata"
+	"github.com/pkosiec/terminer/internal/printer"
 
 	"github.com/spf13/cobra"
 )
@@ -11,11 +10,13 @@ import (
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the application version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("%s v. %s\n%s", metadata.AppName, metadata.Version, metadata.URL)
-	},
+	Run:   runVersion,
 }
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+}
+
+func runVersion(_ *cobra.Command, _ []string) {
+	printer.AppVersion()
 }

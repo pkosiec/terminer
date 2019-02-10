@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/installer"
 	"github.com/pkosiec/terminer/internal/path"
 	"github.com/pkosiec/terminer/internal/recipe"
@@ -29,7 +30,15 @@ func Execute() {
 	}
 }
 
-func SetupInstaller(filePath string) (*installer.Installer, error) {
+func validateInstallRollbackArgs(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+		return errors.New("Requires one argument")
+	}
+
+	return nil
+}
+
+func setupInstaller(filePath string) (*installer.Installer, error) {
 	var r *recipe.Recipe
 	var err error
 
