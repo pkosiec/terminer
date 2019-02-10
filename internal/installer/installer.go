@@ -10,7 +10,7 @@ import (
 )
 
 type Installer struct {
-	r *recipe.Recipe
+	r  *recipe.Recipe
 	sh sh.Sh
 }
 
@@ -24,13 +24,13 @@ func New(r *recipe.Recipe) (*Installer, error) {
 	}
 
 	return &Installer{
-		r: r,
+		r:  r,
 		sh: sh.New(),
 	}, nil
 }
 
 func (installer *Installer) Install() error {
-	printer.RecipeInfo(installer.r, "Installing",)
+	printer.RecipeInfo(installer.r, "Installing")
 
 	stages := installer.r.Stages
 	stagesLen := len(stages)
@@ -62,13 +62,13 @@ func (installer *Installer) Rollback() error {
 
 	for i := stagesLen; i > 0; i-- {
 		stage := stages[i-1]
-		stageIndex := stagesLen-i
+		stageIndex := stagesLen - i
 		printer.Stage(stage, stageIndex, stagesLen)
 
 		stepsLen := len(stage.Steps)
 		for j := stepsLen; j > 0; j-- {
 			step := stage.Steps[j-1]
-			stepIndex := stepsLen-j
+			stepIndex := stepsLen - j
 
 			printer.Step(step, stepIndex, stepsLen)
 

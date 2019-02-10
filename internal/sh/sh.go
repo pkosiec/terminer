@@ -12,7 +12,7 @@ func New() Sh {
 	return &sh{}
 }
 
-type sh struct {}
+type sh struct{}
 
 // Exec executes given command in Bourne shell
 func (s *sh) Exec(command string) (string, error) {

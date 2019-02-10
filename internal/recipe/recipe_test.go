@@ -15,21 +15,28 @@ func TestFromPath(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := fixRecipe("testos")
 
-		r, err := recipe.FromPath("./fixture/valid-recipe.yaml")
+		r, err := recipe.FromPath("./testdata/valid-recipe.yaml")
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, r)
 	})
 
 	t.Run("Invalid Path", func(t *testing.T) {
-		_, err := recipe.FromPath("./fixture/no-file-exist.yaml")
+		_, err := recipe.FromPath("./testdata/no-file-exist.yaml")
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "no such file")
 	})
 
+	t.Run("Invalid extension", func(t *testing.T) {
+		_, err := recipe.FromPath("./testdata/valid-recipe.sh")
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "Invalid file extension")
+	})
+
 	t.Run("Invalid File", func(t *testing.T) {
-		_, err := recipe.FromPath("./fixture/invalid-recipe.yaml")
+		_, err := recipe.FromPath("./testdata/invalid-recipe.yaml")
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while loading recipe")
@@ -39,7 +46,7 @@ func TestFromPath(t *testing.T) {
 func TestFromURL(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := fixRecipe("testos")
-		server := setupRemoteRecipeServer(t, "./fixture/valid-recipe.yaml", false)
+		server := setupRemoteRecipeServer(t, "./testdata/valid-recipe.yaml", false)
 		defer server.Close()
 
 		r, err := recipe.FromURL(server.URL)
@@ -79,7 +86,7 @@ func TestFromURL(t *testing.T) {
 
 	t.Run("Empty response body", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			w.WriteHeader(http.StatusOK)
 		}))
 		defer server.Close()
 
@@ -90,7 +97,7 @@ func TestFromURL(t *testing.T) {
 	})
 
 	t.Run("Invalid File", func(t *testing.T) {
-		server := setupRemoteRecipeServer(t, "./fixture/invalid-recipe.yaml", false)
+		server := setupRemoteRecipeServer(t, "./testdata/invalid-recipe.yaml", false)
 		defer server.Close()
 
 		_, err := recipe.FromURL(server.URL)
@@ -244,4 +251,3 @@ func setupRemoteRecipeServer(t *testing.T, recipePath string, returnError bool) 
 
 	return server
 }
-
