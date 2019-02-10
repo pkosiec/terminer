@@ -86,7 +86,7 @@ func TestFromURL(t *testing.T) {
 
 	t.Run("Empty response body", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+			w.WriteHeader(http.StatusOK)
 		}))
 		defer server.Close()
 
@@ -251,4 +251,3 @@ func setupRemoteRecipeServer(t *testing.T, recipePath string, returnError bool) 
 
 	return server
 }
-

@@ -38,5 +38,3 @@ Examples:
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
-
-
