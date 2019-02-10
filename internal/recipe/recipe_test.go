@@ -28,6 +28,13 @@ func TestFromPath(t *testing.T) {
 		require.Contains(t, err.Error(), "no such file")
 	})
 
+	t.Run("Invalid extension", func(t *testing.T) {
+		_, err := recipe.FromPath("./fixture/valid-recipe.sh")
+
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "Invalid file extension")
+	})
+
 	t.Run("Invalid File", func(t *testing.T) {
 		_, err := recipe.FromPath("./fixture/invalid-recipe.yaml")
 

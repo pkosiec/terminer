@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkosiec/terminer/internal/installer"
+	"github.com/pkosiec/terminer/internal/path"
+	"github.com/pkosiec/terminer/internal/recipe"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -10,16 +13,9 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "terminer",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Short: "Upgrade your terminal experience",
+	Long: `TODO
+`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -31,8 +27,24 @@ func Execute() {
 	}
 }
 
-func init() {
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func SetupInstaller(filePath string) (*installer.Installer, error) {
+	var r *recipe.Recipe
+	var err error
+
+	if path.IsURL(filePath) {
+		r, err = recipe.FromURL(filePath)
+	} else {
+		r, err = recipe.FromPath(filePath)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	i, err := installer.New(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return i, nil
 }

@@ -5,18 +5,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// installCmd represents the install command
-var installCmd = &cobra.Command{
-	Use:   "install [file path or URL]",
-	Short: "Installs a recipe from given path or URL",
-	Long: `Install command installs a recipe from a local or remote file.
+// rollbackCmd represents the rollback command
+var rollbackCmd = &cobra.Command{
+	Use:   "rollback [file path or URL]",
+	Short: "Rollbacks a recipe from given path or URL",
+	Long: `Rollback command rollbacks a recipe from a local or remote file.
 Provide a relative or absolute path to a YAML file with recipe
 or an URL to download it.
 
 Examples:
-	terminer install ./recipe.yaml
-	terminer install /Users/sample-user/recipe.yaml
-	terminer install https://example.com/recipe.yaml
+	terminer rollback ./recipe.yaml
+	terminer rollback /Users/sample-user/recipe.yaml
+	terminer rollback https://example.com/recipe.yaml
 `,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
@@ -31,12 +31,10 @@ Examples:
 			return err
 		}
 
-		return i.Install()
+		return i.Rollback()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(rollbackCmd)
 }
-
-

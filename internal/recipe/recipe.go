@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -32,12 +34,17 @@ type Step struct {
 }
 
 func FromPath(path string) (*Recipe, error) {
-	yamlFile, err := ioutil.ReadFile(path)
+	err := validateExtension(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "while reading file %s", path)
+		return nil, errors.Wrapf(err, "while reading file from path `%s`", path)
 	}
 
-	recipe, err := unmarshallRecipe(yamlFile)
+	yamlFile, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrapf(err, "while reading file from path `%s`", path)
+	}
+
+	recipe, err := unmarshalRecipe(yamlFile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while loading recipe from file %s", path)
 	}
@@ -65,7 +72,7 @@ func FromURL(url string) (*Recipe, error) {
 		return nil, fmt.Errorf("Empty body while downloading file from URL %s", url)
 	}
 
-	recipe, err := unmarshallRecipe(bytes)
+	recipe, err := unmarshalRecipe(bytes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "while loading recipe from URL %s", url)
 	}
@@ -73,7 +80,18 @@ func FromURL(url string) (*Recipe, error) {
 	return recipe, nil
 }
 
-func unmarshallRecipe(bytes []byte) (*Recipe, error) {
+func validateExtension(path string) error {
+	ext := filepath.Ext(path)
+	lowercaseExt := strings.ToLower(ext)
+
+	if lowercaseExt != ".yaml" && lowercaseExt != ".yml" {
+		return fmt.Errorf("Invalid file extension `%s`. Expected: yaml or yml", ext)
+	}
+
+	return nil
+}
+
+func unmarshalRecipe(bytes []byte) (*Recipe, error) {
 	var recipe *Recipe
 	err := yaml.Unmarshal(bytes, &recipe)
 	return recipe, err
