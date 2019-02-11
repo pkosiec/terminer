@@ -30,6 +30,7 @@ type Step struct {
 	Name        string
 	ReadMoreURL string `yaml:"url"`
 	Command     string `yaml:"cmd"`
+	Shell       string
 	Rollback    string
 }
 

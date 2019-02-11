@@ -1,7 +1,7 @@
 package installer
 
-import "github.com/pkosiec/terminer/internal/sh"
+import "github.com/pkosiec/terminer/internal/shell"
 
-func (installer *Installer) SetSh(s sh.Sh) {
+func (installer *Installer) SetShell(s shell.Shell) {
 	installer.sh = s
 }

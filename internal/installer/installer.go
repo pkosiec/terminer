@@ -1,17 +1,15 @@
 package installer
 
 import (
-	"github.com/pkosiec/terminer/internal/printer"
-	"log"
-
 	"github.com/pkg/errors"
+	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/sh"
+	"github.com/pkosiec/terminer/internal/shell"
 )
 
 type Installer struct {
 	r  *recipe.Recipe
-	sh sh.Sh
+	sh shell.Shell
 }
 
 func New(r *recipe.Recipe) (*Installer, error) {
@@ -25,7 +23,7 @@ func New(r *recipe.Recipe) (*Installer, error) {
 
 	return &Installer{
 		r:  r,
-		sh: sh.New(),
+		sh: shell.New(),
 	}, nil
 }
 
@@ -40,14 +38,15 @@ func (installer *Installer) Install() error {
 
 		stepsLen := len(stage.Steps)
 		for stepIndex, step := range stage.Steps {
-			printer.Step(step, stepIndex, stepsLen)
+			printer.Step(step.Name, step.Command, stepIndex, stepsLen)
 
-			res, err := installer.sh.Exec(step.Command)
+			stepShell := installer.shellForStep(step)
+
+			res, err := installer.sh.Exec(stepShell, step.Command)
+			printer.StepOutput(res)
 			if err != nil {
-				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Name, step.Name)
 			}
-
-			log.Printf("%s\n", res)
 		}
 	}
 
@@ -70,16 +69,26 @@ func (installer *Installer) Rollback() error {
 			step := stage.Steps[j-1]
 			stepIndex := stepsLen - j
 
-			printer.Step(step, stepIndex, stepsLen)
+			printer.Step(step.Name, step.Rollback, stepIndex, stepsLen)
 
-			res, err := installer.sh.Exec(step.Rollback)
+			stepShell := installer.shellForStep(step)
+			res, err := installer.sh.Exec(stepShell, step.Rollback)
+			printer.StepOutput(res)
 			if err != nil {
-				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				// Print error and continue
+				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				printer.Error(wrappedErr)
 			}
-
-			log.Printf("%s\n", res)
 		}
 	}
 
 	return nil
+}
+
+func (installer *Installer) shellForStep(step recipe.Step) string {
+	if step.Shell == "" {
+		return shell.DefaultShell
+	}
+
+	return step.Shell
 }

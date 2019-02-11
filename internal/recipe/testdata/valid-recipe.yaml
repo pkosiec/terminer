@@ -22,6 +22,7 @@ stages:
     steps:
       - name: Step 2
         url: https://step2.stage2.example.com
+        shell: sh
         cmd: echo "Step 1 of Stage 2"
         rollback: echo "Rollback of Step 1 of Stage 2"
       - name: Step 2

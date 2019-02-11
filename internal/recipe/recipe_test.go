@@ -218,6 +218,7 @@ func fixRecipe(os string) *recipe.Recipe {
 				Steps: []recipe.Step{
 					{
 						Name:        "Step 2",
+						Shell: "sh",
 						ReadMoreURL: "https://step2.stage2.example.com",
 						Command:     "echo \"Step 1 of Stage 2\"",
 						Rollback:    "echo \"Rollback of Step 1 of Stage 2\"",

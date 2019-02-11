@@ -20,7 +20,20 @@ func Stage(s recipe.Stage, stageIndex, stagesLen int) {
 	//TODO: Show description and URL
 }
 
-func Step(s recipe.Step, stepIndex, stepsLen int) {
-	log.Printf(">> [STEP %d/%d] %s\n", stepIndex+1, stepsLen, s.Name)
+func Step(stepName, stepCommand string, stepIndex, stepsLen int) {
+	log.Printf(">> [STEP %d/%d] %s\n", stepIndex+1, stepsLen, stepName)
 	//TODO: Show description and URL
+	log.Printf(">> Command: %s", stepCommand)
+}
+
+func StepOutput(output string) {
+	if output == "" {
+		return
+	}
+
+	log.Printf("Output: %s\n", output)
+}
+
+func Error(err error) {
+	log.Println(err)
 }

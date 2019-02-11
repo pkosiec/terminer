@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/installer"
 	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/sh/automock"
+	"github.com/pkosiec/terminer/internal/shell/automock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"runtime"
@@ -45,13 +45,13 @@ func TestInstaller_Install(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"C1/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C2/2\"").Return("", nil).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", "sh", "echo \"C1/1\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh", "echo \"C2/1\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh", "echo \"C1/2\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh", "echo \"C2/2\"").Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Install()
 		require.NoError(t, err)
@@ -65,10 +65,10 @@ func TestInstaller_Install(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"C1/1\"").Return("", testErr).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", "sh", "echo \"C1/1\"").Return("", testErr).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Install()
 		require.Error(t, err)
@@ -83,19 +83,19 @@ func TestInstaller_Rollback(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"R2/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R1/1\"").Return("", nil).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", "sh","echo \"R2/2\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh","echo \"R1/2\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh","echo \"R2/1\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh","echo \"R1/1\"").Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Rollback()
 		require.NoError(t, err)
 	})
 
-	// Should exit after failed step
+	// Should not exit after failed step
 	t.Run("Error", func(t *testing.T) {
 		testErr := errors.New("Test Err")
 		r := fixRecipe(runtime.GOOS)
@@ -103,14 +103,16 @@ func TestInstaller_Rollback(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"R2/2\"").Return("", testErr).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", "sh", "echo \"R2/2\"").Return("", testErr).Once()
+		shImpl.On("Exec", "sh", "echo \"R1/2\"").Return("", testErr).Once()
+		shImpl.On("Exec", "sh","echo \"R2/1\"").Return("", nil).Once()
+		shImpl.On("Exec", "sh","echo \"R1/1\"").Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Rollback()
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), testErr.Error())
+		require.NoError(t, err)
 	})
 }
 

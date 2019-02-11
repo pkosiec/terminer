@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
-	"log"
 	"runtime"
 	"strings"
 	"testing"
@@ -52,6 +51,6 @@ func replaceOSLineInRecipe(t *testing.T, path, from, to string) {
 	output := strings.Replace(string(input), fmt.Sprintf("os: %s", from), fmt.Sprintf("os: %s", to), 1)
 	err = ioutil.WriteFile(path, []byte(output), 0644)
 	if err != nil {
-		log.Fatalln(err)
+		t.Fatal(err)
 	}
 }
