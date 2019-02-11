@@ -1,58 +1,85 @@
 os: darwin
-
-name: Fish Shell Starter
-description: Set up basic configuration of Fish shell
+metadata:
+  name: Fish Shell Starter
+  description: Set up basic configuration of Fish shell
 
 stages:
-  - name: Fish Shell Starter
-    url: https://fishshell.com/
+  - metadata:
+      name: Fish Shell Starter
+      url: https://fishshell.com/
     steps:
-      - name: Download
+      - metadata:
+          name: Download
+          url: https://fishshell.com/
         execute:
-          cmd: "curl https://github.com/fish-shell/fish-shell/releases/download/3.0.1/fish-3.0.1.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg"
+          run: "curl https://github.com/fish-shell/fish-shell/releases/download/3.0.1/fish-3.0.1.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg"
         rollback:
-          cmd: "rm -rf ~/.temp"
-      - name: Install
+          run: "rm -rf ~/.temp"
+      - metadata:
+          name: Install
         execute:
-          cmd: "installer -pkg ~/.temp/fish-installer.pkg -target /"
+          run: "installer -pkg ~/.temp/fish-installer.pkg -target /"
           sudo: true
         rollback:
-          cmd: "rm -Rf /usr/local/etc/fish /usr/local/share/fish ~/.config/fish && cd /usr/local/bin && rm -f fish mimedb fish_pager fishd fish_indent && yes | rm /usr/local/share/man/man1/fish*.1"
+          run: "rm -Rf /usr/local/etc/fish /usr/local/share/fish ~/.config/fish && cd /usr/local/bin && rm -f fish mimedb fish_pager fishd fish_indent && yes | rm /usr/local/share/man/man1/fish*.1"
           sudo: true
-      - name: Cleanup
+      - metadata:
+          name: Cleanup
         execute:
-          cmd: "rm -rf ~/.temp"
+          run: "rm -rf ~/.temp"
 
-  - name: Fisher - Package manager
-    url: https://github.com/jorgebucaran/fisher
+  - metadata:
+      name: Fisher - Package manager
+      url: https://github.com/jorgebucaran/fisher
     steps:
       - execute:
-          cmd: "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
+          run: "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
           shell: fish
         rollback:
-          cmd: "fisher self-uninstall"
+          run: "fisher self-uninstall"
           shell: fish
-  - name: Useful Fish packages
+
+  - metadata:
+      name: Useful Fish packages
     steps:
-      - name: franciscolourenco/done
-        url: https://github.com/franciscolourenco/done
+      - metadata:
+          name: franciscolourenco/done
+          url: https://github.com/franciscolourenco/done
         execute:
-          cmd: "fisher add franciscolourenco/done"
-        shell: fish
-        rollback: "fisher rm franciscolourenco/done"
-      - name: "z"
-        url: "https://github.com/jethrokuan/z"
-        cmd: "fisher add jethrokuan/z"
-        shell: fish
-        rollback: "fisher rm jethrokuan/z"
-  - name: "Pure Prompt"
-    url: "https://github.com/rafaelrinaldi/pure"
+          run: "fisher add franciscolourenco/done"
+          shell: fish
+        rollback:
+          run: "fisher rm franciscolourenco/done"
+          shell: fish
+      - metadata:
+          name: jethrokuan/z
+          url: "https://github.com/jethrokuan/z"
+        execute:
+          run: "fisher add jethrokuan/z"
+          shell: fish
+        rollback:
+          run: "fisher rm jethrokuan/z"
+          shell: fish
+
+  - metadata:
+      name: Pure Prompt
+      url: https://github.com/rafaelrinaldi/pure
     steps:
-      - name: "Download & Install"
-        cmd: "fisher add rafaelrinaldi/pure"
-        shell: fish
-        rollback: "fisher rm rafaelrinaldi/pure"
-  - name: "Set as default shell"
+      - metadata:
+          name: Download & Install
+        execute:
+          run: "fisher add rafaelrinaldi/pure"
+          shell: fish
+        rollback:
+          run: "fisher rm rafaelrinaldi/pure"
+          shell: fish
+
+  - metadata:
+      name: Set as default shell
     steps:
-      - cmd: "chsh -s $(which fish)"
-        rollback: "chsh -s $(which bash)"
+      - execute:
+          run: "chsh -s $(which fish)"
+          sudo: true
+        rollback:
+          run: "chsh -s $(which bash)"
+          sudo: true
