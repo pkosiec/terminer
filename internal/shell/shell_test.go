@@ -10,11 +10,23 @@ import (
 )
 
 func TestShell_Exec(t *testing.T) {
-	s := shell.New()
-	out, err := s.Exec(shell.Command{
-		Run:  "echo 'Foo'",
-		Sudo: false,
+	t.Run("Default", func(t *testing.T) {
+		s := shell.New()
+		out, err := s.Exec(shell.Command{
+			Run:  "echo 'Foo'",
+			Root: false,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "Foo\n", out)
 	})
-	require.NoError(t, err)
-	assert.Equal(t, "Foo\n", out)
+
+	t.Run("With Custom Shell", func(t *testing.T) {
+		s := shell.New()
+		out, err := s.Exec(shell.Command{
+			Run:   "echo 'Foo'",
+			Shell: "sh",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "Foo\n", out)
+	})
 }

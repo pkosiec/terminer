@@ -18,10 +18,10 @@ stages:
           name: Install
         execute:
           run: "installer -pkg ~/.temp/fish-installer.pkg -target /"
-          sudo: true
+          root: true
         rollback:
           run: "rm -Rf /usr/local/etc/fish /usr/local/share/fish ~/.config/fish && cd /usr/local/bin && rm -f fish mimedb fish_pager fishd fish_indent && yes | rm /usr/local/share/man/man1/fish*.1"
-          sudo: true
+          root: true
       - metadata:
           name: Cleanup
         execute:
@@ -78,7 +78,7 @@ stages:
     steps:
       - execute:
           run: "chsh -s $(which fish)"
-          sudo: true
+          root: true
         rollback:
           run: "chsh -s $(which bash)"
-          sudo: true
+          root: true

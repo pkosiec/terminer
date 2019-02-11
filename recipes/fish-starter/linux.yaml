@@ -67,7 +67,7 @@ stages:
     steps:
       - execute:
           run: "chsh -s $(which fish)"
-          sudo: true
+          root: true
         rollback:
           run: "chsh -s $(which bash)"
-          sudo: true
+          root: true
