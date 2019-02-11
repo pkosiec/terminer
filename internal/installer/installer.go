@@ -1,17 +1,15 @@
 package installer
 
 import (
-	"github.com/pkosiec/terminer/internal/printer"
-	"log"
-
 	"github.com/pkg/errors"
+	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/sh"
+	"github.com/pkosiec/terminer/internal/shell"
 )
 
 type Installer struct {
 	r  *recipe.Recipe
-	sh sh.Sh
+	sh shell.Shell
 }
 
 func New(r *recipe.Recipe) (*Installer, error) {
@@ -25,7 +23,7 @@ func New(r *recipe.Recipe) (*Installer, error) {
 
 	return &Installer{
 		r:  r,
-		sh: sh.New(),
+		sh: shell.New(),
 	}, nil
 }
 
@@ -40,14 +38,13 @@ func (installer *Installer) Install() error {
 
 		stepsLen := len(stage.Steps)
 		for stepIndex, step := range stage.Steps {
-			printer.Step(step, stepIndex, stepsLen)
+			printer.Step(step.Metadata, step.Execute.Run, stepIndex, stepsLen)
 
-			res, err := installer.sh.Exec(step.Command)
+			res, err := installer.sh.Exec(step.Execute)
+			printer.StepOutput(res)
 			if err != nil {
-				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Metadata.Name, step.Metadata.Name)
 			}
-
-			log.Printf("%s\n", res)
 		}
 	}
 
@@ -70,14 +67,15 @@ func (installer *Installer) Rollback() error {
 			step := stage.Steps[j-1]
 			stepIndex := stepsLen - j
 
-			printer.Step(step, stepIndex, stepsLen)
+			printer.Step(step.Metadata, step.Rollback.Run, stepIndex, stepsLen)
 
 			res, err := installer.sh.Exec(step.Rollback)
+			printer.StepOutput(res)
 			if err != nil {
-				return errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				// Print error and continue
+				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Metadata.Name, step.Metadata.Name)
+				printer.Error(wrappedErr)
 			}
-
-			log.Printf("%s\n", res)
 		}
 	}
 

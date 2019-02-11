@@ -4,7 +4,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/installer"
 	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/sh/automock"
+	"github.com/pkosiec/terminer/internal/shell"
+	"github.com/pkosiec/terminer/internal/shell/automock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"runtime"
@@ -45,13 +46,13 @@ func TestInstaller_Install(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"C1/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"C2/2\"").Return("", nil).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", fixCommand("echo \"C1/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C1/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C2/2\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Install()
 		require.NoError(t, err)
@@ -65,10 +66,10 @@ func TestInstaller_Install(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"C1/1\"").Return("", testErr).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", fixCommand("echo \"C1/1\"")).Return("", testErr).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Install()
 		require.Error(t, err)
@@ -83,19 +84,19 @@ func TestInstaller_Rollback(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"R2/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "echo \"R1/1\"").Return("", nil).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", fixCommand("echo \"R2/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/1\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Rollback()
 		require.NoError(t, err)
 	})
 
-	// Should exit after failed step
+	// Should not exit after failed step
 	t.Run("Error", func(t *testing.T) {
 		testErr := errors.New("Test Err")
 		r := fixRecipe(runtime.GOOS)
@@ -103,58 +104,96 @@ func TestInstaller_Rollback(t *testing.T) {
 		i, err := installer.New(r)
 		require.NoError(t, err)
 
-		shImpl := &automock.Sh{}
-		shImpl.On("Exec", "echo \"R2/2\"").Return("", testErr).Once()
+		shImpl := &automock.Shell{}
+		shImpl.On("Exec", fixCommand("echo \"R2/2\"")).Return("", testErr).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/2\"")).Return("", testErr).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/1\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
-		i.SetSh(shImpl)
+		i.SetShell(shImpl)
 
 		err = i.Rollback()
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), testErr.Error())
+		require.NoError(t, err)
 	})
+}
+
+func fixCommand(run string) shell.Command {
+	return shell.Command{
+		Run: run,
+	}
 }
 
 func fixRecipe(os string) *recipe.Recipe {
 	return &recipe.Recipe{
-		OS:          os,
-		Name:        "Recipe",
-		Description: "Recipe Description",
+		OS: os,
+		Metadata: recipe.UnitMetadata{
+			Name:        "Recipe",
+			Description: "Recipe Description",
+		},
 		Stages: []recipe.Stage{
 			{
-				Name:        "Stage 1",
-				Description: "Stage 1 description",
-				ReadMoreURL: "https://stage1.example.com",
+				Metadata: recipe.UnitMetadata{
+					Name:        "Stage 1",
+					Description: "Stage 1 description",
+					URL:         "https://stage1.example.com",
+				},
 				Steps: []recipe.Step{
 					{
-						Name:        "Step 1",
-						ReadMoreURL: "https://step1.stage1.example.com",
-						Command:     "echo \"C1/1\"",
-						Rollback:    "echo \"R1/1\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 1",
+							URL:  "https://step1.stage1.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"C1/1\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"R1/1\"",
+						},
 					},
 					{
-						Name:        "Step 2",
-						ReadMoreURL: "https://step2.stage1.example.com",
-						Command:     "echo \"C2/1\"",
-						Rollback:    "echo \"R2/1\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 2",
+							URL:  "https://step2.stage1.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"C2/1\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"R2/1\"",
+						},
 					},
 				},
 			},
 			{
-				Name:        "Stage 2",
-				Description: "Stage 2 description",
-				ReadMoreURL: "https://stage2.example.com",
+				Metadata: recipe.UnitMetadata{
+					Name:        "Stage 2",
+					Description: "Stage 2 description",
+					URL:         "https://stage2.example.com",
+				},
 				Steps: []recipe.Step{
 					{
-						Name:        "Step 1",
-						ReadMoreURL: "https://step2.stage2.example.com",
-						Command:     "echo \"C1/2\"",
-						Rollback:    "echo \"R1/2\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 1",
+							URL:  "https://step1.stage2.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"C1/2\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"R1/2\"",
+						},
 					},
 					{
-						Name:        "Step 2",
-						ReadMoreURL: "https://step2.stage2.example.com",
-						Command:     "echo \"C2/2\"",
-						Rollback:    "echo \"R2/2\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 2",
+							URL:  "https://step2.stage2.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"C2/2\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"R2/2\"",
+						},
 					},
 				},
 			},

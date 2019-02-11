@@ -2,6 +2,7 @@ package recipe
 
 import (
 	"fmt"
+	"github.com/pkosiec/terminer/internal/shell"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
@@ -12,25 +13,27 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type UnitMetadata struct {
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	URL         string `yaml:"url"`
+}
+
 type Recipe struct {
-	Name        string
-	Description string
-	OS          string `yaml:"os"`
-	Stages      []Stage
+	OS       string `yaml:"os"`
+	Metadata UnitMetadata
+	Stages   []Stage
 }
 
 type Stage struct {
-	Name        string
-	Description string
-	ReadMoreURL string `yaml:"url"`
-	Steps       []Step
+	Metadata UnitMetadata
+	Steps    []Step
 }
 
 type Step struct {
-	Name        string
-	ReadMoreURL string `yaml:"url"`
-	Command     string `yaml:"cmd"`
-	Rollback    string
+	Metadata UnitMetadata
+	Execute  shell.Command
+	Rollback shell.Command
 }
 
 func FromPath(path string) (*Recipe, error) {
@@ -128,7 +131,7 @@ func (r *Recipe) validateStages() error {
 	for stageNo, stage := range r.Stages {
 		err := r.validateSteps(stage)
 		if err != nil {
-			return errors.Wrapf(err, "while validating stage %d (%s)", stageNo+1, stage.Name)
+			return errors.Wrapf(err, "while validating stage %d (%s)", stageNo+1, stage.Metadata.Name)
 		}
 	}
 
@@ -141,8 +144,8 @@ func (r *Recipe) validateSteps(stage Stage) error {
 	}
 
 	for stepNo, step := range stage.Steps {
-		if step.Command == "" {
-			return fmt.Errorf("No command defined in step %d (%s)", stepNo+1, step.Name)
+		if step.Execute.Run == "" {
+			return fmt.Errorf("No command defined in step %d (%s)", stepNo+1, step.Metadata.Name)
 		}
 	}
 

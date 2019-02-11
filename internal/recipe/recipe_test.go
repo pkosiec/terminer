@@ -2,6 +2,7 @@ package recipe_test
 
 import (
 	"github.com/pkosiec/terminer/internal/recipe"
+	"github.com/pkosiec/terminer/internal/shell"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -127,8 +128,10 @@ func TestValidate(t *testing.T) {
 
 	t.Run("No stages", func(t *testing.T) {
 		r := &recipe.Recipe{
-			OS:   runtime.GOOS,
-			Name: "Test",
+			OS: runtime.GOOS,
+			Metadata: recipe.UnitMetadata{
+				Name: "Test",
+			},
 		}
 
 		err := r.Validate()
@@ -139,20 +142,30 @@ func TestValidate(t *testing.T) {
 
 	t.Run("No steps in stage", func(t *testing.T) {
 		r := &recipe.Recipe{
-			OS:   runtime.GOOS,
-			Name: "Test",
+			OS: runtime.GOOS,
+			Metadata: recipe.UnitMetadata{
+				Name: "Test",
+			},
 			Stages: []recipe.Stage{
 				{
-					Name: "1",
+					Metadata: recipe.UnitMetadata{
+						Name: "1",
+					},
 					Steps: []recipe.Step{
 						{
-							Name:    "Test",
-							Command: "echo \"test\"",
+							Metadata: recipe.UnitMetadata{
+								Name: "Test",
+							},
+							Execute: shell.Command{
+								Run: "echo \"test\"",
+							},
 						},
 					},
 				},
 				{
-					Name: "2",
+					Metadata: recipe.UnitMetadata{
+						Name: "2",
+					},
 				},
 			},
 		}
@@ -165,14 +178,20 @@ func TestValidate(t *testing.T) {
 
 	t.Run("No commands in stage", func(t *testing.T) {
 		r := &recipe.Recipe{
-			OS:   runtime.GOOS,
-			Name: "Test",
+			OS: runtime.GOOS,
+			Metadata: recipe.UnitMetadata{
+				Name: "Test",
+			},
 			Stages: []recipe.Stage{
 				{
-					Name: "1",
+					Metadata: recipe.UnitMetadata{
+						Name: "1",
+					},
 					Steps: []recipe.Step{
 						{
-							Name: "Test",
+							Metadata: recipe.UnitMetadata{
+								Name: "Test",
+							},
 						},
 					},
 				},
@@ -188,45 +207,76 @@ func TestValidate(t *testing.T) {
 
 func fixRecipe(os string) *recipe.Recipe {
 	return &recipe.Recipe{
-		OS:          os,
-		Name:        "Recipe",
-		Description: "Recipe Description",
+		OS: os,
+		Metadata: recipe.UnitMetadata{
+			Name:        "Recipe",
+			Description: "Recipe Description",
+		},
 		Stages: []recipe.Stage{
 			{
-				Name:        "Stage 1",
-				Description: "Stage 1 description",
-				ReadMoreURL: "https://stage1.example.com",
+				Metadata: recipe.UnitMetadata{
+					Name:        "Stage 1",
+					Description: "Stage 1 description",
+					URL:         "https://stage1.example.com",
+				},
 				Steps: []recipe.Step{
 					{
-						Name:        "Step 1",
-						ReadMoreURL: "https://step1.stage1.example.com",
-						Command:     "echo \"Step 1 of Stage 1\"",
-						Rollback:    "echo \"Rollback of Step 1 of Stage 1\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 1",
+							URL:  "https://step1.stage1.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"Step 1 of Stage 1\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"Rollback of Step 1 of Stage 1\"",
+						},
 					},
 					{
-						Name:        "Step 2",
-						ReadMoreURL: "https://step2.stage1.example.com",
-						Command:     "echo \"Step 2 of Stage 1\"",
-						Rollback:    "echo \"Rollback of Step 2 of Stage 1\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 2",
+							URL:  "https://step2.stage1.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"Step 2 of Stage 1\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"Rollback of Step 2 of Stage 1\"",
+						},
 					},
 				},
 			},
 			{
-				Name:        "Stage 2",
-				Description: "Stage 2 description",
-				ReadMoreURL: "https://stage2.example.com",
+				Metadata: recipe.UnitMetadata{
+					Name:        "Stage 2",
+					Description: "Stage 2 description",
+					URL:         "https://stage2.example.com",
+				},
 				Steps: []recipe.Step{
 					{
-						Name:        "Step 2",
-						ReadMoreURL: "https://step2.stage2.example.com",
-						Command:     "echo \"Step 1 of Stage 2\"",
-						Rollback:    "echo \"Rollback of Step 1 of Stage 2\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 1",
+							URL:  "https://step1.stage2.example.com",
+						},
+						Execute: shell.Command{
+							Shell: "sh",
+							Run:   "echo \"Step 1 of Stage 2\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"Rollback of Step 1 of Stage 2\"",
+						},
 					},
 					{
-						Name:        "Step 2",
-						ReadMoreURL: "https://step2.stage2.example.com",
-						Command:     "echo \"Step 2 of Stage 2\"",
-						Rollback:    "echo \"Rollback of Step 2 of Stage 2\"",
+						Metadata: recipe.UnitMetadata{
+							Name: "Step 2",
+							URL:  "https://step2.stage2.example.com",
+						},
+						Execute: shell.Command{
+							Run: "echo \"Step 2 of Stage 2\"",
+						},
+						Rollback: shell.Command{
+							Run: "echo \"Rollback of Step 2 of Stage 2\"",
+						},
 					},
 				},
 			},

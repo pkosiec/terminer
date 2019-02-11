@@ -1,30 +1,45 @@
 os: testos
-
-name: Recipe
-description: Recipe Description
+metadata:
+  name: Recipe
+  description: Recipe Description
 
 stages:
-  - name: Stage 1
-    description: Stage 1 description
-    url: https://stage1.example.com
+  - metadata:
+      name: Stage 1
+      description: Stage 1 description
+      url: https://stage1.example.com
     steps:
-      - name: Step 1
-        url: https://step1.stage1.example.com
-        cmd: echo "Step 1 of Stage 1"
-        rollback: echo "Rollback of Step 1 of Stage 1"
-      - name: Step 2
-        url: https://step2.stage1.example.com
-        cmd: echo "Step 2 of Stage 1"
-        rollback: echo "Rollback of Step 2 of Stage 1"
-  - name: Stage 2
-    description: Stage 2 description
-    url: https://stage2.example.com
+      - metadata:
+          name: Step 1
+          url: https://step1.stage1.example.com
+        execute:
+          run: echo "Step 1 of Stage 1"
+        rollback:
+          run: echo "Rollback of Step 1 of Stage 1"
+      - metadata:
+          name: Step 2
+          url: https://step2.stage1.example.com
+        execute:
+          run: echo "Step 2 of Stage 1"
+        rollback:
+          run: echo "Rollback of Step 2 of Stage 1"
+  - metadata:
+      name: Stage 2
+      description: Stage 2 description
+      url: https://stage2.example.com
     steps:
-      - name: Step 2
-        url: https://step2.stage2.example.com
-        cmd: echo "Step 1 of Stage 2"
-        rollback: echo "Rollback of Step 1 of Stage 2"
-      - name: Step 2
-        url: https://step2.stage2.example.com
-        cmd: echo "Step 2 of Stage 2"
-        rollback: echo "Rollback of Step 2 of Stage 2"
+      - metadata:
+          name: Step 1
+          url: https://step1.stage2.example.com
+        execute:
+          run: echo "Step 1 of Stage 2"
+          shell: sh
+        rollback:
+          run: echo "Rollback of Step 1 of Stage 2"
+      - metadata:
+          name: Step 2
+          url: https://step2.stage2.example.com
+        execute:
+          run: echo "Step 2 of Stage 2"
+        rollback:
+          run: echo "Rollback of Step 2 of Stage 2"
