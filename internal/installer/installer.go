@@ -38,14 +38,12 @@ func (installer *Installer) Install() error {
 
 		stepsLen := len(stage.Steps)
 		for stepIndex, step := range stage.Steps {
-			printer.Step(step.Name, step.Command, stepIndex, stepsLen)
+			printer.Step(step.Metadata, step.Execute.Run, stepIndex, stepsLen)
 
-			stepShell := installer.shellForStep(step)
-
-			res, err := installer.sh.Exec(stepShell, step.Command)
+			res, err := installer.sh.Exec(step.Execute)
 			printer.StepOutput(res)
 			if err != nil {
-				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Name, step.Name)
+				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Metadata.Name, step.Metadata.Name)
 			}
 		}
 	}
@@ -69,26 +67,17 @@ func (installer *Installer) Rollback() error {
 			step := stage.Steps[j-1]
 			stepIndex := stepsLen - j
 
-			printer.Step(step.Name, step.Rollback, stepIndex, stepsLen)
+			printer.Step(step.Metadata, step.Rollback.Run, stepIndex, stepsLen)
 
-			stepShell := installer.shellForStep(step)
-			res, err := installer.sh.Exec(stepShell, step.Rollback)
+			res, err := installer.sh.Exec(step.Rollback)
 			printer.StepOutput(res)
 			if err != nil {
 				// Print error and continue
-				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Name, step.Name)
+				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Metadata.Name, step.Metadata.Name)
 				printer.Error(wrappedErr)
 			}
 		}
 	}
 
 	return nil
-}
-
-func (installer *Installer) shellForStep(step recipe.Step) string {
-	if step.Shell == "" {
-		return shell.DefaultShell
-	}
-
-	return step.Shell
 }

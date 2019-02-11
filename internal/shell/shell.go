@@ -2,9 +2,15 @@ package shell
 
 import "os/exec"
 
+type Command struct {
+	Run   string
+	Shell string
+	Sudo  bool
+}
+
 //go:generate mockery -name=Shell -output=automock -outpkg=automock -case=underscore
 type Shell interface {
-	Exec(shell, command string) (string, error)
+	Exec(command Command) (string, error)
 }
 
 func New() Shell {
@@ -16,13 +22,20 @@ const DefaultShell = "sh"
 type shell struct{}
 
 // Exec executes given command in specified shell
-func (s *shell) Exec(shell, command string) (string, error) {
-	cmd := s.prepareCmd(shell, command)
-	return s.runCmd(cmd)
-}
+func (s *shell) Exec(command Command) (string, error) {
+	shell := command.Shell
+	if command.Shell == "" {
+		shell = DefaultShell
+	}
 
-func (s *shell) prepareCmd(shell, command string) *exec.Cmd {
-	return exec.Command(shell, "-c", command)
+	var cmd *exec.Cmd
+	if command.Sudo {
+		cmd = exec.Command("sudo", shell, "-c", command.Run)
+	} else {
+		cmd = exec.Command(shell, "-c", command.Run)
+	}
+
+	return s.runCmd(cmd)
 }
 
 func (s *shell) runCmd(cmd *exec.Cmd) (string, error) {

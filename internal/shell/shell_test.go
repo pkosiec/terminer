@@ -11,7 +11,10 @@ import (
 
 func TestShell_Exec(t *testing.T) {
 	s := shell.New()
-	out, err := s.Exec(shell.DefaultShell, "echo 'Foo'")
+	out, err := s.Exec(shell.Command{
+		Run:  "echo 'Foo'",
+		Sudo: false,
+	})
 	require.NoError(t, err)
 	assert.Equal(t, "Foo\n", out)
 }

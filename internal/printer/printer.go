@@ -11,17 +11,17 @@ func AppVersion() {
 }
 
 func RecipeInfo(r *recipe.Recipe, operationType string) {
-	log.Printf("%s recipe %s", operationType, r.Name)
-	log.Printf("Description: %s", r.Description)
+	log.Printf("%s recipe %s", operationType, r.Metadata.Name)
+	log.Printf("Description: %s", r.Metadata.Description)
 }
 
 func Stage(s recipe.Stage, stageIndex, stagesLen int) {
-	log.Printf("[STAGE %d/%d] %s\n", stageIndex+1, stagesLen, s.Name)
+	log.Printf("[STAGE %d/%d] %s\n", stageIndex+1, stagesLen, s.Metadata.Name)
 	//TODO: Show description and URL
 }
 
-func Step(stepName, stepCommand string, stepIndex, stepsLen int) {
-	log.Printf(">> [STEP %d/%d] %s\n", stepIndex+1, stepsLen, stepName)
+func Step(stepMetadata recipe.UnitMetadata, stepCommand string, stepIndex, stepsLen int) {
+	log.Printf(">> [STEP %d/%d] %s\n", stepIndex+1, stepsLen, stepMetadata.Name)
 	//TODO: Show description and URL
 	log.Printf(">> Command: %s", stepCommand)
 }
