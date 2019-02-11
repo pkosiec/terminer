@@ -20,19 +20,19 @@ type UnitMetadata struct {
 }
 
 type Recipe struct {
-	OS     string `yaml:"os"`
+	OS       string `yaml:"os"`
 	Metadata UnitMetadata
-	Stages []Stage
+	Stages   []Stage
 }
 
 type Stage struct {
 	Metadata UnitMetadata
-	Steps []Step
+	Steps    []Step
 }
 
 type Step struct {
 	Metadata UnitMetadata
-	Execute shell.Command
+	Execute  shell.Command
 	Rollback shell.Command
 }
 

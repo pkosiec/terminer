@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/installer"
 	"github.com/pkosiec/terminer/internal/recipe"
+	"github.com/pkosiec/terminer/internal/shell"
 	"github.com/pkosiec/terminer/internal/shell/automock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -46,10 +47,10 @@ func TestInstaller_Install(t *testing.T) {
 		require.NoError(t, err)
 
 		shImpl := &automock.Shell{}
-		shImpl.On("Exec", "sh", "echo \"C1/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"C2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"C1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"C2/2\"").Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C1/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C1/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"C2/2\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
 		i.SetShell(shImpl)
 
@@ -66,7 +67,7 @@ func TestInstaller_Install(t *testing.T) {
 		require.NoError(t, err)
 
 		shImpl := &automock.Shell{}
-		shImpl.On("Exec", "sh", "echo \"C1/1\"").Return("", testErr).Once()
+		shImpl.On("Exec", fixCommand("echo \"C1/1\"")).Return("", testErr).Once()
 		defer shImpl.AssertExpectations(t)
 		i.SetShell(shImpl)
 
@@ -84,10 +85,10 @@ func TestInstaller_Rollback(t *testing.T) {
 		require.NoError(t, err)
 
 		shImpl := &automock.Shell{}
-		shImpl.On("Exec", "sh", "echo \"R2/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"R1/2\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"R2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"R1/1\"").Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/2\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/1\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
 		i.SetShell(shImpl)
 
@@ -104,16 +105,22 @@ func TestInstaller_Rollback(t *testing.T) {
 		require.NoError(t, err)
 
 		shImpl := &automock.Shell{}
-		shImpl.On("Exec", "sh", "echo \"R2/2\"").Return("", testErr).Once()
-		shImpl.On("Exec", "sh", "echo \"R1/2\"").Return("", testErr).Once()
-		shImpl.On("Exec", "sh", "echo \"R2/1\"").Return("", nil).Once()
-		shImpl.On("Exec", "sh", "echo \"R1/1\"").Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/2\"")).Return("", testErr).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/2\"")).Return("", testErr).Once()
+		shImpl.On("Exec", fixCommand("echo \"R2/1\"")).Return("", nil).Once()
+		shImpl.On("Exec", fixCommand("echo \"R1/1\"")).Return("", nil).Once()
 		defer shImpl.AssertExpectations(t)
 		i.SetShell(shImpl)
 
 		err = i.Rollback()
 		require.NoError(t, err)
 	})
+}
+
+func fixCommand(run string) shell.Command {
+	return shell.Command{
+		Run: run,
+	}
 }
 
 func fixRecipe(os string) *recipe.Recipe {
@@ -136,10 +143,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 1",
 							URL:  "https://step1.stage1.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"C1/1\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"R1/1\"",
 						},
 					},
@@ -148,10 +155,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 2",
 							URL:  "https://step2.stage1.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"C2/1\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"R2/1\"",
 						},
 					},
@@ -169,10 +176,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 1",
 							URL:  "https://step1.stage2.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"C1/2\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"R1/2\"",
 						},
 					},
@@ -181,10 +188,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 2",
 							URL:  "https://step2.stage2.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"C2/2\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"R2/2\"",
 						},
 					},

@@ -2,6 +2,7 @@ package recipe_test
 
 import (
 	"github.com/pkosiec/terminer/internal/recipe"
+	"github.com/pkosiec/terminer/internal/shell"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -155,7 +156,7 @@ func TestValidate(t *testing.T) {
 							Metadata: recipe.UnitMetadata{
 								Name: "Test",
 							},
-							Execute: recipe.Command{
+							Execute: shell.Command{
 								Run: "echo \"test\"",
 							},
 						},
@@ -224,10 +225,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 1",
 							URL:  "https://step1.stage1.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"Step 1 of Stage 1\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"Rollback of Step 1 of Stage 1\"",
 						},
 					},
@@ -236,10 +237,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 2",
 							URL:  "https://step2.stage1.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"Step 2 of Stage 1\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"Rollback of Step 2 of Stage 1\"",
 						},
 					},
@@ -257,11 +258,11 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 1",
 							URL:  "https://step1.stage2.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Shell: "sh",
 							Run:   "echo \"Step 1 of Stage 2\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"Rollback of Step 1 of Stage 2\"",
 						},
 					},
@@ -270,10 +271,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							Name: "Step 2",
 							URL:  "https://step2.stage2.example.com",
 						},
-						Execute: recipe.Command{
+						Execute: shell.Command{
 							Run: "echo \"Step 2 of Stage 2\"",
 						},
-						Rollback: recipe.Command{
+						Rollback: shell.Command{
 							Run: "echo \"Rollback of Step 2 of Stage 2\"",
 						},
 					},
