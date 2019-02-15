@@ -16,3 +16,6 @@
 
 # Code coverage
 coverage.txt
+
+# Release changelog
+release-changelog.md

@@ -1,5 +1,8 @@
 language: go
 
+services:
+  - docker
+
 branches:
   only:
     - master
@@ -24,6 +27,6 @@ after_success:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: curl -sL https://git.io/goreleaser | bash
+    script: bash ./ci/deploy.sh
     on:
       tags: true
