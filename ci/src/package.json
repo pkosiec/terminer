@@ -1,0 +1,14 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pkosiec/terminer"
+  },
+  "changelog": {
+    "labels": {
+      "breaking": ":boom: Breaking Changes",
+      "enhancement": ":rocket: Enhancements",
+      "bug": ":bug: Bug Fixes",
+      "area/documentation": ":memo: Documentation"
+    }
+  }
+}
