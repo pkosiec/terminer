@@ -8,7 +8,7 @@
       "breaking": ":boom: Breaking Changes",
       "enhancement": ":rocket: Enhancements",
       "bug": ":bug: Bug Fixes",
-      "documentation": ":memo: Documentation"
+      "area/documentation": ":memo: Documentation"
     }
   }
 }

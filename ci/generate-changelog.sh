@@ -6,4 +6,4 @@ cd $dir/src
 docker build -t changelog-generator .
 cd ../..
 
-docker run --rm -v $(pwd):/repo -w /repo changelog-generator sh /app/generate.sh
+docker run --rm -v $(pwd):/repo -w /repo -e GITHUB_AUTH=$GITHUB_TOKEN changelog-generator sh /app/generate.sh
