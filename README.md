@@ -8,6 +8,18 @@ Upgrade your terminal experience with a single command.
 
 Terminer is an cross-platform installer for terminal presets. Install Fish or ZSH shell packed with useful plugins and sleek prompts. Use one of starter recipes or make yours.
 
+## Table of contents
+
+- [Motivation](#motivation)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Quick start](#quick-start)
+  - [Recipe](#recipe)
+- [Available commands](#available-commands)
+  - [`install`](#install)
+  - [`rollback`](#rollback)
+  - [`version`](#version)
+
 ## Motivation
 
 Command line interface (CLI) is a great way to access various operating system functions. It allows you to automate time-consuming tasks with a single command. Also, not all features are available with graphical user interface (GUI).
@@ -31,8 +43,11 @@ go get -u github.com/pkosiec/terminer
 ```
 
 ## Usage
+
 Terminer operates on recipes, which consist of shell commands.
 The most basic commands are `install` and `rollback`.
+
+### Quick start
 
 To install a recipe, run:
 
