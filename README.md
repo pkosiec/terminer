@@ -19,6 +19,8 @@ Terminer is an cross-platform installer for terminal presets. Install Fish or ZS
   - [`install`](#install)
   - [`rollback`](#rollback)
   - [`version`](#version)
+- [Available recipes](#available-recipes)
+  - [Fish starter (macOS, Linux)](#fish-starter-macos-linux)
 
 ## Motivation
 
@@ -34,7 +36,7 @@ Not anymore. Use Terminer. Bootstrap your complete shell configuration in a mome
 
 ## Installation
 
-> **:warning: There are no releases available yet.** It will change soon, but for now use Go binary to install this project. In future there will be placed a one-liner to install the project from latest GitHub release.
+> **:construction: There are no releases available yet.** It will change soon, but for now use Go binary to install this project. In future there will be placed a one-liner to install the project from latest GitHub release.
 
 To install this tool, run the following command:
 
@@ -159,3 +161,29 @@ Prints the application version
 ```bash
 terminer version
 ```
+
+## Available recipes
+
+The following section describes all hosted and maintained recipes for Terminer.
+
+### **Fish starter** (macOS, Linux)
+
+Fish shell starter packs. Installs fish shell along with `fisher` package manager, some useful `fisher` packages and `pure` prompt.
+
+**Usage**
+
+> :construction: I am aware that the current installation process is cumbersome. The user experience will be heavily improved in following releases.
+
+On macOS, run the following command:
+
+```bash
+terminer install https://raw.githubusercontent.com/pkosiec/terminer/master/recipes/fish-starter/darwin.yaml
+```
+
+For Linux, use this command:
+
+```bash
+terminer install https://raw.githubusercontent.com/pkosiec/terminer/master/recipes/fish-starter/linux.yaml
+```
+
+If you have a recipe you want to share with everyone, create a pull request to this repository!
