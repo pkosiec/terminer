@@ -3,7 +3,7 @@ package shell_test
 import (
 	"testing"
 
-	"github.com/pkosiec/terminer/internal/shell"
+	"github.com/pkosiec/terminer/pkg/shell"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

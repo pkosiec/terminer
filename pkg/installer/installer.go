@@ -3,8 +3,8 @@ package installer
 import (
 	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/printer"
-	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/shell"
+	"github.com/pkosiec/terminer/pkg/recipe"
+	"github.com/pkosiec/terminer/pkg/shell"
 )
 
 type Installer struct {

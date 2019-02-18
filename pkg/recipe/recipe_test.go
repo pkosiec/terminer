@@ -1,8 +1,8 @@
 package recipe_test
 
 import (
-	"github.com/pkosiec/terminer/internal/recipe"
-	"github.com/pkosiec/terminer/internal/shell"
+	"github.com/pkosiec/terminer/pkg/recipe"
+	"github.com/pkosiec/terminer/pkg/shell"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"

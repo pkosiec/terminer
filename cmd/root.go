@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/pkosiec/terminer/internal/installer"
-	"github.com/pkosiec/terminer/internal/path"
-	"github.com/pkosiec/terminer/internal/recipe"
+	"github.com/pkosiec/terminer/pkg/installer"
+	"github.com/pkosiec/terminer/pkg/path"
+	"github.com/pkosiec/terminer/pkg/recipe"
 	"os"
 
 	"github.com/spf13/cobra"

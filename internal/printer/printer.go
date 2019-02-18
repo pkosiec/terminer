@@ -2,7 +2,7 @@ package printer
 
 import (
 	"github.com/pkosiec/terminer/internal/metadata"
-	"github.com/pkosiec/terminer/internal/recipe"
+	"github.com/pkosiec/terminer/pkg/recipe"
 	"log"
 )
 

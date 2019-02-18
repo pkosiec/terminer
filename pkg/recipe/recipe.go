@@ -2,7 +2,7 @@ package recipe
 
 import (
 	"fmt"
-	"github.com/pkosiec/terminer/internal/shell"
+	"github.com/pkosiec/terminer/pkg/shell"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"

@@ -1,7 +1,7 @@
 package path_test
 
 import (
-	"github.com/pkosiec/terminer/internal/path"
+	"github.com/pkosiec/terminer/pkg/path"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
