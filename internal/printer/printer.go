@@ -1,16 +1,23 @@
 package printer
 
 import (
+	"fmt"
 	"github.com/pkosiec/terminer/internal/metadata"
 	"github.com/pkosiec/terminer/pkg/recipe"
 	"log"
+	"github.com/fatih/color"
 )
 
 func AppVersion() {
-	log.Printf("%s v. %s\n%s", metadata.AppName, metadata.Version, metadata.URL)
+	appName := color.New(color.Bold).Sprint(metadata.AppName)
+	fmt.Printf("%s %s\n", appName, metadata.Version)
+
+	url := color.New(color.Underline).Sprint(metadata.URL)
+	fmt.Printf("URL: %s\n", url)
 }
 
 func RecipeInfo(r *recipe.Recipe, operationType string) {
+	color.New()
 	log.Printf("%s recipe %s", operationType, r.Metadata.Name)
 	log.Printf("Description: %s", r.Metadata.Description)
 }
