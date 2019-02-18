@@ -5,21 +5,25 @@ import (
 	"os/exec"
 )
 
+// Command represents command to execute in given shell
 type Command struct {
 	Run   string
 	Shell string
 	Root  bool
 }
 
+// Shell gives an ability to run shell commands
 //go:generate mockery -name=Shell -output=automock -outpkg=automock -case=underscore
 type Shell interface {
 	Exec(command Command) (string, error)
 }
 
+// New creates a new instance that implements Shell interface
 func New() Shell {
 	return &shell{}
 }
 
+// DefaultShell defines in which shell all commands should be executed by default
 const DefaultShell = "/bin/sh"
 
 type shell struct{}
@@ -45,6 +49,7 @@ func (s *shell) runCmd(cmd *exec.Cmd) (string, error) {
 	return string(out), err
 }
 
+// TODO: Test it somehow
 func (s *shell) runAsRoot(cmd Command) *exec.Cmd {
 	if !s.isCommandAvailable("sudo") {
 		return exec.Command("su", "-s", cmd.Shell, "-c", cmd.Run)

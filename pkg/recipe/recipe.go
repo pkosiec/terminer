@@ -13,29 +13,34 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// UnitMetadata stores metadata for a generic Recipe unit, such as Recipe, Stage or Step
 type UnitMetadata struct {
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 	URL         string `yaml:"url"`
 }
 
+// Recipe stores needed steps to install a gjven piece of functionality
 type Recipe struct {
 	OS       string `yaml:"os"`
 	Metadata UnitMetadata
 	Stages   []Stage
 }
 
+// Stage represents a logical part of recipe that consists of steps
 type Stage struct {
 	Metadata UnitMetadata
 	Steps    []Step
 }
 
+// Step contains data about a single shell command, which can be installed or reverted
 type Step struct {
 	Metadata UnitMetadata
 	Execute  shell.Command
 	Rollback shell.Command
 }
 
+// FromPath creates a Recipe from given file
 func FromPath(path string) (*Recipe, error) {
 	err := validateExtension(path)
 	if err != nil {
@@ -55,6 +60,7 @@ func FromPath(path string) (*Recipe, error) {
 	return recipe, nil
 }
 
+// FromPath downloads a file from given URL and uses it to create a Recipe
 func FromURL(url string) (*Recipe, error) {
 	res, err := http.Get(url)
 	if err != nil {
@@ -83,6 +89,21 @@ func FromURL(url string) (*Recipe, error) {
 	return recipe, nil
 }
 
+// Validate checks if the recipe is valid to run on current OS and whether all stages and steps are not empty
+func (r *Recipe) Validate() error {
+	err := r.validateOS()
+	if err != nil {
+		return err
+	}
+
+	err = r.validateStages()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func validateExtension(path string) error {
 	ext := filepath.Ext(path)
 	lowercaseExt := strings.ToLower(ext)
@@ -98,20 +119,6 @@ func unmarshalRecipe(bytes []byte) (*Recipe, error) {
 	var recipe *Recipe
 	err := yaml.Unmarshal(bytes, &recipe)
 	return recipe, err
-}
-
-func (r *Recipe) Validate() error {
-	err := r.validateOS()
-	if err != nil {
-		return err
-	}
-
-	err = r.validateStages()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (r *Recipe) validateOS() error {
