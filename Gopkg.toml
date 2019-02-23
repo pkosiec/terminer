@@ -9,7 +9,3 @@
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  name = "github.com/briandowns/spinner"
-  version = "1.4.0"
