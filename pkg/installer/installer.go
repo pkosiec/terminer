@@ -62,6 +62,8 @@ func (installer *Installer) Rollback() error {
 	stages := installer.r.Stages
 	stagesLen := len(stages)
 
+	hasErrorOccurred := false
+
 	p := printer.NewPrinter(stagesLen, printer.OperationRollback)
 	p.Recipe(installer.r.Metadata)
 
@@ -81,11 +83,16 @@ func (installer *Installer) Rollback() error {
 			res, err := installer.sh.Exec(step.Rollback)
 			p.StepOutput(res)
 			if err != nil {
+				hasErrorOccurred = true
 				// Print error and continue
 				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Metadata.Name, step.Metadata.Name)
 				p.StepError(wrappedErr)
 			}
 		}
+	}
+
+	if hasErrorOccurred {
+		return errors.New("Error(s) received during steps execution. See the logs for details.")
 	}
 
 	return nil

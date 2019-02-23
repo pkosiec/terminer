@@ -35,8 +35,8 @@ func Result(err error) {
 type Operation string
 
 const (
-	OperationInstall Operation = "Installation"
-	OperationRollback Operation = "Rollback"
+	OperationInstall Operation = "installation"
+	OperationRollback Operation = "rollback"
 )
 
 
@@ -92,8 +92,15 @@ func (p *Printer) Recipe(r recipe.UnitMetadata) {
 func (p *Printer) Stage(stageIndex int, s recipe.Stage) {
 	c := color.New(color.Bold, color.FgBlue)
 
+	var name string
+	if p.operation == OperationRollback {
+		name = fmt.Sprintf("Reverting '%s'", s.Metadata.Name)
+	} else {
+		name = s.Metadata.Name
+	}
+
 	stageCounter := fmt.Sprintf("[%d/%d] ", stageIndex+1, p.stages)
-	c.Printf("\n%s%s\n", stageCounter, s.Metadata.Name)
+	c.Printf("\n%s%s\n", stageCounter, name)
 
 	p.descriptionAndURL(s.Metadata, p.indentation)
 }
@@ -114,18 +121,20 @@ func (p *Printer) Step(s recipe.UnitMetadata, stepCommand string, stepIndex, ste
 
 	p.descriptionAndURL(s, p.indentation)
 
-	color.New(color.Faint, color.Bold).Printf("%sCommand: ", p.indentation)
-	color.New(color.Faint).Printf("%s\n", stepCommand)
+	if stepCommand != "" {
+		color.New(color.Faint, color.Bold).Printf("%sCommand: ", p.indentation)
+		color.New(color.Faint).Printf("%s\n", stepCommand)
+	}
 
 	p.spinner.Start()
 }
 
 func (p *Printer) StepOutput(output string) {
-	p.stepOutput(output, color.New(color.Faint))
+	p.stepOutput(output, "Result", color.New(color.Faint))
 }
 
 func (p *Printer) StepError(err error) {
-	p.stepOutput(err.Error(), color.New(color.FgRed))
+	p.stepOutput(fmt.Sprintf("%s\n", err.Error()) , "Error", color.New(color.FgRed))
 }
 
 func (p *Printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
@@ -138,13 +147,13 @@ func (p *Printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
 	}
 }
 
-func (p *Printer) stepOutput(output string, outputFormatter *color.Color) {
+func (p *Printer) stepOutput(output string, title string, outputFormatter *color.Color) {
 	p.spinner.Stop()
 	if output == "" {
 		return
 	}
 
-	color.New(color.Faint, color.Bold).Printf("%sResult:\n", p.indentation)
+	color.New(color.Faint, color.Bold).Printf("\n%s%s:\n", p.indentation, title)
 
 	formattedOutput := strings.Replace(output, "\n", fmt.Sprintf("\n%s", p.indentation), -1)
 	outputFormatter.Printf("%s%s", p.indentation, formattedOutput)
