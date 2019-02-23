@@ -23,20 +23,30 @@ func Error(err error) {
 	color.New(color.FgRed).Printf(err.Error())
 }
 
-// TODO: Use spinner
-func Spinner() *spinner.Spinner {
-	return spinner.New(spinner.CharSets[40], 100*time.Millisecond)
-}
+
+type Operation string
+
+const (
+	OperationInstall Operation = "Installation"
+	OperationRollback Operation = "Rollback"
+)
+
 
 type Printer struct {
+	operation Operation
 	stages      int
 	indentation string
+	spinner *spinner.Spinner
 }
 
-func NewPrinter(stages int) *Printer {
+func NewPrinter(stages int, operation Operation) *Printer {
+	spinner := spinner.New(spinner.CharSets[40], 100*time.Millisecond)
+	indentation := stagesIndentation(stages)
 	return &Printer{
 		stages:      stages,
-		indentation: stagesIndentation(stages),
+		indentation: indentation,
+		spinner: spinner,
+		operation:operation,
 	}
 }
 
@@ -58,11 +68,11 @@ func stagesIndentation(stagesCount int) string {
 	return indentation
 }
 
-func (p *Printer) Recipe(r recipe.UnitMetadata, operationType string) {
+func (p *Printer) Recipe(r recipe.UnitMetadata) {
 	c := color.New(color.Bold, color.FgBlue)
 
 	c.DisableColor()
-	c.Printf("Starting %s...\n\n", operationType)
+	c.Printf("Starting %s...\n\n", p.operation)
 
 	c.EnableColor()
 	c.Printf("%s\n", r.Name)
@@ -98,6 +108,8 @@ func (p *Printer) Step(s recipe.UnitMetadata, stepCommand string, stepIndex, ste
 
 	color.New(color.Faint, color.Bold).Printf("%sCommand: ", p.indentation)
 	color.New(color.Faint).Printf("%s\n", stepCommand)
+
+	p.spinner.Start()
 }
 
 func (p *Printer) StepOutput(output string) {
@@ -119,6 +131,7 @@ func (p *Printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
 }
 
 func (p *Printer) stepOutput(output string, outputFormatter *color.Color) {
+	p.spinner.Stop()
 	if output == "" {
 		return
 	}

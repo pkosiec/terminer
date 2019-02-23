@@ -7,17 +7,6 @@ import (
 	"github.com/pkosiec/terminer/pkg/shell"
 )
 
-type Operation string
-
-func (o Operation) String() string {
-	return string(o)
-}
-
-const (
-	OperationInstall Operation = "Installation"
-	OperationRollback Operation = "Rollback"
-)
-
 // Installer provides an ability to install recipes
 type Installer struct {
 	r  *recipe.Recipe
@@ -45,8 +34,8 @@ func (installer *Installer) Install() error {
 	stages := installer.r.Stages
 	stagesLen := len(stages)
 
-	p := printer.NewPrinter(stagesLen)
-	p.Recipe(installer.r.Metadata, OperationInstall.String())
+	p := printer.NewPrinter(stagesLen, printer.OperationInstall)
+	p.Recipe(installer.r.Metadata)
 
 	for stageIndex, stage := range stages {
 		p.Stage(stageIndex, stage)
@@ -73,8 +62,8 @@ func (installer *Installer) Rollback() error {
 	stages := installer.r.Stages
 	stagesLen := len(stages)
 
-	p := printer.NewPrinter(stagesLen)
-	p.Recipe(installer.r.Metadata, OperationRollback.String())
+	p := printer.NewPrinter(stagesLen, printer.OperationRollback)
+	p.Recipe(installer.r.Metadata)
 
 	for i := stagesLen; i > 0; i-- {
 		stage := stages[i-1]
