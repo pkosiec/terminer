@@ -18,9 +18,17 @@ func AppInfo() {
 	fmt.Printf("URL: %s\n", url)
 }
 
-func Error(err error) {
-	color.New(color.FgRed, color.Bold).Printf("Error:\n")
-	color.New(color.FgRed).Printf(err.Error())
+func Result(err error) {
+	result := color.New(color.Bold)
+	result.Printf("\n")
+
+	if err != nil {
+		result.Add(color.FgRed).Printf("Error:\n")
+		color.New(color.FgRed).Printf(err.Error())
+		return
+	}
+
+	result.Add(color.FgGreen).Println("Success")
 }
 
 

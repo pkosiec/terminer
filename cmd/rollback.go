@@ -33,9 +33,7 @@ func runRollback(cmd *cobra.Command, args []string) error {
 	}
 
 	err = i.Rollback()
-	if err != nil {
-		printer.Error(err)
-	}
+	printer.Result(err)
 
 	return nil
 }

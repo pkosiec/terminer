@@ -33,9 +33,7 @@ func runInstall(cmd *cobra.Command, args []string) error {
 	}
 
 	err = i.Install()
-	if err != nil {
-		printer.Error(err)
-	}
+	printer.Result(err)
 
 	return nil
 }
