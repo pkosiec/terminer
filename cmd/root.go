@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/pkg/installer"
 	"github.com/pkosiec/terminer/pkg/path"
 	"github.com/pkosiec/terminer/pkg/recipe"
@@ -38,7 +39,7 @@ func validateInstallRollbackArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func setupInstaller(filePath string) (*installer.Installer, error) {
+func setupInstaller(filePath string, p printer.Printer) (*installer.Installer, error) {
 	var r *recipe.Recipe
 	var err error
 
@@ -52,7 +53,7 @@ func setupInstaller(filePath string) (*installer.Installer, error) {
 		return nil, err
 	}
 
-	i, err := installer.New(r)
+	i, err := installer.New(r, p)
 	if err != nil {
 		return nil, err
 	}

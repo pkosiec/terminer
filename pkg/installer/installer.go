@@ -9,12 +9,13 @@ import (
 
 // Installer provides an ability to install recipes
 type Installer struct {
-	r  *recipe.Recipe
-	sh shell.Shell
+	r       *recipe.Recipe
+	sh      shell.Shell
+	printer printer.Printer
 }
 
 // New creates a new instance of Installer.
-func New(r *recipe.Recipe) (*Installer, error) {
+func New(r *recipe.Recipe, p printer.Printer) (*Installer, error) {
 	if r == nil {
 		return nil, errors.New("Recipe is empty")
 	}
@@ -24,69 +25,66 @@ func New(r *recipe.Recipe) (*Installer, error) {
 	}
 
 	return &Installer{
-		r:  r,
-		sh: shell.New(),
+		r:       r,
+		sh:      shell.New(),
+		printer: p,
 	}, nil
 }
 
 // Install installs a recipe by executing all steps in all stages
 func (installer *Installer) Install() error {
-	stages := installer.r.Stages
-	stagesLen := len(stages)
+	stagesCount := len(installer.r.Stages)
+	installer.printer.SetContext(printer.OperationInstall, stagesCount)
 
-	p := printer.NewPrinter(stagesLen, printer.OperationInstall)
-	p.Recipe(installer.r.Metadata)
+	stages := installer.r.Stages
+
+	installer.printer.Recipe(installer.r.Metadata)
 
 	for stageIndex, stage := range stages {
-		p.Stage(stageIndex, stage)
+		installer.printer.Stage(stageIndex, stage)
 
 		stepsLen := len(stage.Steps)
 		for stepIndex, step := range stage.Steps {
-			p.Step(step.Metadata, step.Execute.Run, stepIndex, stepsLen)
+			installer.printer.Step(stepIndex, stepsLen, step.Execute.Run, step.Metadata)
 
-			res, err := installer.sh.Exec(step.Execute)
-			p.StepOutput(res)
+			err := installer.sh.Exec(step.Execute, installer.printer.ExecOutput, installer.printer.ExecError)
 			if err != nil {
 				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Metadata.Name, step.Metadata.Name)
 			}
 		}
 	}
 
-
-
 	return nil
 }
 
 // Rollback reverts a recipe by executing all steps in all stages in reverse order
 func (installer *Installer) Rollback() error {
+	stagesCount := len(installer.r.Stages)
+	installer.printer.SetContext(printer.OperationRollback, stagesCount)
+
 	stages := installer.r.Stages
 	stagesLen := len(stages)
 
 	hasErrorOccurred := false
 
-	p := printer.NewPrinter(stagesLen, printer.OperationRollback)
-	p.Recipe(installer.r.Metadata)
+	installer.printer.Recipe(installer.r.Metadata)
 
 	for i := stagesLen; i > 0; i-- {
 		stage := stages[i-1]
 		stageIndex := stagesLen - i
 
-		p.Stage(stageIndex, stage)
+		installer.printer.Stage(stageIndex, stage)
 
 		stepsLen := len(stage.Steps)
 		for j := stepsLen; j > 0; j-- {
 			step := stage.Steps[j-1]
 			stepIndex := stepsLen - j
 
-			p.Step(step.Metadata, step.Rollback.Run, stepIndex, stepsLen)
+			installer.printer.Step(stepIndex, stepsLen, step.Rollback.Run, step.Metadata)
 
-			res, err := installer.sh.Exec(step.Rollback)
-			p.StepOutput(res)
+			err := installer.sh.Exec(step.Rollback, installer.printer.ExecOutput, installer.printer.ExecError)
 			if err != nil {
 				hasErrorOccurred = true
-				// Print error and continue
-				wrappedErr := errors.Wrapf(err, "while executing command from Stage %s, Step %s", stage.Metadata.Name, step.Metadata.Name)
-				p.StepError(wrappedErr)
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/pkosiec/terminer/internal/metadata"
 	"github.com/pkosiec/terminer/internal/printer"
 
 	"github.com/spf13/cobra"
@@ -18,5 +19,5 @@ func init() {
 }
 
 func runVersion(_ *cobra.Command, _ []string) {
-	printer.AppInfo()
+	printer.New().AppInfo(metadata.AppName, metadata.Version, metadata.URL)
 }

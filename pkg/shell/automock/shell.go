@@ -9,23 +9,16 @@ type Shell struct {
 	mock.Mock
 }
 
-// Exec provides a mock function with given fields: command
-func (_m *Shell) Exec(command shell.Command) (string, error) {
-	ret := _m.Called(command)
+// Exec provides a mock function with given fields: command, outputPrinter, errPrinter
+func (_m *Shell) Exec(command shell.Command, outputPrinter shell.PrintFn, errPrinter shell.PrintFn) error {
+	ret := _m.Called(command, outputPrinter, errPrinter)
 
-	var r0 string
-	if rf, ok := ret.Get(0).(func(shell.Command) string); ok {
-		r0 = rf(command)
+	var r0 error
+	if rf, ok := ret.Get(0).(func(shell.Command, shell.PrintFn, shell.PrintFn) error); ok {
+		r0 = rf(command, outputPrinter, errPrinter)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(shell.Command) error); ok {
-		r1 = rf(command)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }

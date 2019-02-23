@@ -12,21 +12,28 @@ import (
 func TestShell_Exec(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
 		s := shell.New()
-		out, err := s.Exec(shell.Command{
+		outPrinter := func(s string) {
+			assert.Equal(t, "Foo", s)
+		}
+		errPrinter := func(s string) {}
+
+		err := s.Exec(shell.Command{
 			Run:  "echo 'Foo'",
 			Root: false,
-		})
+		}, outPrinter, errPrinter)
 		require.NoError(t, err)
-		assert.Equal(t, "Foo\n", out)
 	})
 
 	t.Run("With Custom Shell", func(t *testing.T) {
 		s := shell.New()
-		out, err := s.Exec(shell.Command{
+		outPrinter := func(s string) {
+			assert.Equal(t, "Foo", s)
+		}
+		errPrinter := func(s string) {}
+		err := s.Exec(shell.Command{
 			Run:   "echo 'Foo'",
 			Shell: "sh",
-		})
+		}, outPrinter, errPrinter)
 		require.NoError(t, err)
-		assert.Equal(t, "Foo\n", out)
 	})
 }

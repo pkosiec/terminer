@@ -27,13 +27,14 @@ func init() {
 }
 
 func runInstall(cmd *cobra.Command, args []string) error {
-	i, err := setupInstaller(args[0])
+	p := printer.New()
+	i, err := setupInstaller(args[0], p)
 	if err != nil {
 		return err
 	}
 
 	err = i.Install()
-	printer.Result(err)
+	p.Result(err)
 
 	return nil
 }

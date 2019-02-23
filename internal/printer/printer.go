@@ -2,60 +2,35 @@ package printer
 
 import (
 	"fmt"
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
-	"github.com/pkosiec/terminer/internal/metadata"
 	"github.com/pkosiec/terminer/pkg/recipe"
-	"strings"
-	"time"
 )
-
-func AppInfo() {
-	appName := color.New(color.Bold).Sprint(metadata.AppName)
-	fmt.Printf("%s %s\n", appName, metadata.Version)
-
-	url := color.New(color.Underline).Sprint(metadata.URL)
-	fmt.Printf("URL: %s\n", url)
-}
-
-func Result(err error) {
-	result := color.New(color.Bold)
-	result.Printf("\n")
-
-	if err != nil {
-		result.Add(color.FgRed).Printf("Error:\n")
-		color.New(color.FgRed).Printf(err.Error())
-		return
-	}
-
-	result.Add(color.FgGreen).Println("Success")
-}
-
 
 type Operation string
 
 const (
-	OperationInstall Operation = "installation"
+	OperationInstall  Operation = "installation"
 	OperationRollback Operation = "rollback"
 )
 
-
-type Printer struct {
-	operation Operation
-	stages      int
-	indentation string
-	spinner *spinner.Spinner
+//go:generate mockery -name=Printer -output=automock -outpkg=automock -case=underscore
+type Printer interface {
+	SetContext(operation Operation, stagesCount int)
+	Recipe(r recipe.UnitMetadata)
+	Stage(stageIndex int, s recipe.Stage)
+	Step(stepIndex, steps int, stepCommand string, s recipe.UnitMetadata)
+	ExecOutput(output string)
+	ExecError(output string)
 }
 
-func NewPrinter(stages int, operation Operation) *Printer {
-	spinner := spinner.New(spinner.CharSets[40], 100*time.Millisecond)
-	indentation := stagesIndentation(stages)
-	return &Printer{
-		stages:      stages,
-		indentation: indentation,
-		spinner: spinner,
-		operation:operation,
-	}
+type printer struct {
+	operation   Operation
+	stages      int
+	indentation string
+}
+
+func New() *printer {
+	return &printer{}
 }
 
 func stagesIndentation(stagesCount int) string {
@@ -76,7 +51,12 @@ func stagesIndentation(stagesCount int) string {
 	return indentation
 }
 
-func (p *Printer) Recipe(r recipe.UnitMetadata) {
+func (p *printer) SetContext(operation Operation, stagesCount int) {
+	p.operation = operation
+	p.indentation = stagesIndentation(stagesCount)
+}
+
+func (p *printer) Recipe(r recipe.UnitMetadata) {
 	c := color.New(color.Bold, color.FgBlue)
 
 	c.DisableColor()
@@ -89,7 +69,7 @@ func (p *Printer) Recipe(r recipe.UnitMetadata) {
 	p.descriptionAndURL(r, "")
 }
 
-func (p *Printer) Stage(stageIndex int, s recipe.Stage) {
+func (p *printer) Stage(stageIndex int, s recipe.Stage) {
 	c := color.New(color.Bold, color.FgBlue)
 
 	var name string
@@ -105,7 +85,7 @@ func (p *Printer) Stage(stageIndex int, s recipe.Stage) {
 	p.descriptionAndURL(s.Metadata, p.indentation)
 }
 
-func (p *Printer) Step(s recipe.UnitMetadata, stepCommand string, stepIndex, steps int) {
+func (p *printer) Step(stepIndex, steps int, stepCommand string, s recipe.UnitMetadata) {
 	c := color.New(color.Bold, color.FgCyan)
 
 	fmt.Printf("\n")
@@ -121,23 +101,41 @@ func (p *Printer) Step(s recipe.UnitMetadata, stepCommand string, stepIndex, ste
 
 	p.descriptionAndURL(s, p.indentation)
 
+	header := color.New(color.Faint, color.Bold)
 	if stepCommand != "" {
-		color.New(color.Faint, color.Bold).Printf("%sCommand: ", p.indentation)
+		header.Printf("%sCommand: ", p.indentation)
 		color.New(color.Faint).Printf("%s\n", stepCommand)
 	}
-
-	p.spinner.Start()
 }
 
-func (p *Printer) StepOutput(output string) {
-	p.stepOutput(output, "Result", color.New(color.Faint))
+func (p *printer) ExecOutput(output string) {
+	p.stepOutput(output, color.New(color.Faint))
 }
 
-func (p *Printer) StepError(err error) {
-	p.stepOutput(fmt.Sprintf("%s\n", err.Error()) , "Error", color.New(color.FgRed))
+func (p *printer) ExecError(output string) {
+	p.stepOutput(output, color.New(color.Faint, color.FgRed))
 }
 
-func (p *Printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
+func (p *printer) AppInfo(appName, version, url string) {
+	appNameFmt := color.New(color.Bold).Sprint(appName)
+	fmt.Printf("%s %s\n", appNameFmt, version)
+	fmt.Printf("URL: %s\n", url)
+}
+
+func (p *printer) Result(err error) {
+	result := color.New(color.Bold)
+	result.Printf("\n")
+
+	if err != nil {
+		result.Add(color.FgRed).Printf("Error:\n")
+		color.New(color.FgRed).Printf(err.Error())
+		return
+	}
+
+	result.Add(color.FgGreen).Println("Success")
+}
+
+func (p *printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
 	if m.Description != "" {
 		fmt.Printf("%s%s\n", indentation, m.Description)
 	}
@@ -147,14 +145,10 @@ func (p *Printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
 	}
 }
 
-func (p *Printer) stepOutput(output string, title string, outputFormatter *color.Color) {
-	p.spinner.Stop()
+func (p *printer) stepOutput(output string, outputFormatter *color.Color) {
 	if output == "" {
 		return
 	}
 
-	color.New(color.Faint, color.Bold).Printf("\n%s%s:\n", p.indentation, title)
-
-	formattedOutput := strings.Replace(output, "\n", fmt.Sprintf("\n%s", p.indentation), -1)
-	outputFormatter.Printf("%s%s", p.indentation, formattedOutput)
+	outputFormatter.Printf("%s%s\n", p.indentation, output)
 }
