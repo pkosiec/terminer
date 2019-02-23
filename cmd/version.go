@@ -18,5 +18,5 @@ func init() {
 }
 
 func runVersion(_ *cobra.Command, _ []string) {
-	printer.AppVersion()
+	printer.AppInfo()
 }

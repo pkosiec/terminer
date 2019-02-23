@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/spf13/cobra"
 )
 
@@ -31,5 +32,10 @@ func runRollback(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return i.Rollback()
+	err = i.Rollback()
+	if err != nil {
+		printer.Error(err)
+	}
+
+	return nil
 }
