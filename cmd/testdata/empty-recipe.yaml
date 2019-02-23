@@ -1,0 +1,11 @@
+os: {CURRENT_OS_PLACEHOLDER}
+
+metadata:
+  name: Recipe
+  description: Recipe Description
+
+stages:
+  - metadata:
+      name: Stage 1
+      description: Stage 1 description
+      url: https://stage1.example.com

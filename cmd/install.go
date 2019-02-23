@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/spf13/cobra"
 )
 
@@ -26,10 +27,14 @@ func init() {
 }
 
 func runInstall(cmd *cobra.Command, args []string) error {
-	i, err := setupInstaller(args[0])
+	p := printer.New()
+	i, err := setupInstaller(args[0], p)
 	if err != nil {
 		return err
 	}
 
-	return i.Install()
+	err = i.Install()
+	p.Result(err)
+
+	return nil
 }

@@ -35,4 +35,15 @@ func TestRunRollback(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("Failing Recipe", func(t *testing.T) {
+		err := runRollback(nil, []string{FailingRecipePath})
+
+		assert.Error(t, err)
+	})
+
+	t.Run("Empty Recipe", func(t *testing.T) {
+		err := runRollback(nil, []string{EmptyRecipePath})
+
+		assert.Error(t, err)
+	})
 }

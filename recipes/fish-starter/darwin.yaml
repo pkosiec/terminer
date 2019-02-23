@@ -5,7 +5,7 @@ metadata:
 
 stages:
   - metadata:
-      name: Fish Shell Starter
+      name: Fish Shell
       url: https://fishshell.com/
     steps:
       - metadata:
@@ -28,7 +28,7 @@ stages:
           run: "rm -rf ~/.temp"
 
   - metadata:
-      name: Fisher - Package manager
+      name: Fisher Package manager
       url: https://github.com/jorgebucaran/fisher
     steps:
       - execute:
