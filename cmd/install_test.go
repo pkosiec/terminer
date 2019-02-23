@@ -12,6 +12,8 @@ import (
 
 const ValidRecipePath = "./testdata/valid-recipe.yaml"
 const InvalidRecipePath = "./testdata/invalid-recipe.yaml"
+const EmptyRecipePath = "./testdata/empty-recipe.yaml"
+const FailingRecipePath = "./testdata/failing-recipe.yaml"
 const RecipeOSPlaceholder = "{CURRENT_OS_PLACEHOLDER}"
 
 func TestRunInstall(t *testing.T) {
@@ -39,6 +41,18 @@ func TestRunInstall(t *testing.T) {
 
 	t.Run("Invalid Recipe", func(t *testing.T) {
 		err := runInstall(nil, []string{InvalidRecipePath})
+
+		assert.Error(t, err)
+	})
+
+	t.Run("Failing Recipe", func(t *testing.T) {
+		err := runInstall(nil, []string{FailingRecipePath})
+
+		assert.Error(t, err)
+	})
+
+	t.Run("Empty Recipe", func(t *testing.T) {
+		err := runInstall(nil, []string{EmptyRecipePath})
 
 		assert.Error(t, err)
 	})
