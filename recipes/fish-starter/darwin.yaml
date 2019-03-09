@@ -1,7 +1,7 @@
 os: darwin
 metadata:
-  name: Fish Shell Starter
-  description: Set up basic configuration of Fish shell
+  name: Fish Starter
+  description: Set up Fish shell with useful plugins
 
 stages:
   - metadata:
@@ -11,31 +11,41 @@ stages:
       - metadata:
           name: Download
         execute:
-          run: "curl https://github.com/fish-shell/fish-shell/releases/download/3.0.1/fish-3.0.1.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg"
+          run:
+            - "curl https://github.com/fish-shell/fish-shell/releases/download/3.0.2/fish-3.0.2.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg"
         rollback:
-          run: "rm -rf ~/.temp"
+          run:
+            - "rm -rf ~/.temp"
       - metadata:
           name: Install
         execute:
-          run: "installer -pkg ~/.temp/fish-installer.pkg -target /"
+          run:
+            - "installer -pkg ~/.temp/fish-installer.pkg -target /"
           root: true
         rollback:
-          run: "rm -Rf /usr/local/etc/fish /usr/local/share/fish ~/.config/fish && cd /usr/local/bin && rm -f fish mimedb fish_pager fishd fish_indent && yes | rm /usr/local/share/man/man1/fish*.1"
+          run:
+            - "rm -Rf /usr/local/etc/fish /usr/local/share/fish ~/.config/fish"
+            - "cd /usr/local/bin"
+            - "rm -f fish mimedb fish_pager fishd fish_indent"
+            - "yes | rm /usr/local/share/man/man1/fish*.1"
           root: true
       - metadata:
           name: Cleanup
         execute:
-          run: "rm -rf ~/.temp"
+          run:
+            - "rm -rf ~/.temp"
 
   - metadata:
       name: Fisher Package manager
       url: https://github.com/jorgebucaran/fisher
     steps:
       - execute:
-          run: "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
+          run:
+            - "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
           shell: fish
         rollback:
-          run: "fisher self-uninstall"
+          run:
+            - "fisher self-uninstall"
           shell: fish
 
   - metadata:
@@ -45,19 +55,23 @@ stages:
           name: franciscolourenco/done
           url: https://github.com/franciscolourenco/done
         execute:
-          run: "fisher add franciscolourenco/done"
+          run:
+            - "fisher add franciscolourenco/done"
           shell: fish
         rollback:
-          run: "fisher rm franciscolourenco/done"
+          run:
+            - "fisher rm franciscolourenco/done"
           shell: fish
       - metadata:
           name: jethrokuan/z
           url: "https://github.com/jethrokuan/z"
         execute:
-          run: "fisher add jethrokuan/z"
+          run:
+            - "fisher add jethrokuan/z"
           shell: fish
         rollback:
-          run: "fisher rm jethrokuan/z"
+          run:
+            - "fisher rm jethrokuan/z"
           shell: fish
 
   - metadata:
@@ -67,18 +81,22 @@ stages:
       - metadata:
           name: Download & Install
         execute:
-          run: "fisher add rafaelrinaldi/pure"
+          run:
+            - "fisher add rafaelrinaldi/pure"
           shell: fish
         rollback:
-          run: "fisher rm rafaelrinaldi/pure"
+          run:
+            - "fisher rm rafaelrinaldi/pure"
           shell: fish
 
   - metadata:
       name: Set as default shell
     steps:
       - execute:
-          run: "chsh -s $(which fish)"
+          run:
+            - "chsh -s $(which fish)"
           root: true
         rollback:
-          run: "chsh -s $(which bash)"
+          run:
+            - "chsh -s $(which bash)"
           root: true

@@ -1,30 +1,35 @@
 os: linux
 metadata:
-  name: Fish Shell Starter
-  description: Set up basic configuration of Fish shell
+  name: Fish Starter
+  description: Set up Fish shell with useful plugins
 
 stages:
   - metadata:
-      name: Fish Shell Starter
+      name: Fish Shell
       url: https://fishshell.com/
     steps:
       - metadata:
           name: Download & Install
           url: https://fishshell.com/
         execute:
-          run: "apt-get update && apt-get -y install fish"
+          run:
+            - "apt-get update"
+            - "apt-get -y install fish"
         rollback:
-          run: "apt-get -y remove fish"
+          run:
+            - "apt-get -y remove fish"
 
   - metadata:
       name: Fisher - Package manager
       url: https://github.com/jorgebucaran/fisher
     steps:
       - execute:
-          run: "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
+          run:
+            - "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
           shell: fish
         rollback:
-          run: "fisher self-uninstall"
+          run:
+            - "fisher self-uninstall"
           shell: fish
 
   - metadata:
@@ -34,19 +39,23 @@ stages:
           name: franciscolourenco/done
           url: https://github.com/franciscolourenco/done
         execute:
-          run: "fisher add franciscolourenco/done"
+          run:
+            - "fisher add franciscolourenco/done"
           shell: fish
         rollback:
-          run: "fisher rm franciscolourenco/done"
+          run:
+            - "fisher rm franciscolourenco/done"
           shell: fish
       - metadata:
           name: jethrokuan/z
           url: "https://github.com/jethrokuan/z"
         execute:
-          run: "fisher add jethrokuan/z"
+          run:
+            - "fisher add jethrokuan/z"
           shell: fish
         rollback:
-          run: "fisher rm jethrokuan/z"
+          run:
+            - "fisher rm jethrokuan/z"
           shell: fish
 
   - metadata:
@@ -56,18 +65,22 @@ stages:
       - metadata:
           name: Download & Install
         execute:
-          run: "fisher add rafaelrinaldi/pure"
+          run:
+            - "fisher add rafaelrinaldi/pure"
           shell: fish
         rollback:
-          run: "fisher rm rafaelrinaldi/pure"
+          run:
+            - "fisher rm rafaelrinaldi/pure"
           shell: fish
 
   - metadata:
       name: Set as default shell
     steps:
       - execute:
-          run: "chsh -s $(which fish)"
+          run:
+            - "chsh -s $(which fish)"
           root: true
         rollback:
-          run: "chsh -s $(which bash)"
+          run:
+            - "chsh -s $(which bash)"
           root: true

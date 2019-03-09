@@ -18,7 +18,8 @@ type Printer interface {
 	SetContext(operation Operation, stagesCount int)
 	Recipe(r recipe.UnitMetadata)
 	Stage(stageIndex int, s recipe.Stage)
-	Step(stepIndex, steps int, stepCommand string, s recipe.UnitMetadata)
+	Step(stepIndex, steps int, s recipe.UnitMetadata)
+	Command(cmd string)
 	ExecOutput(output string)
 	ExecError(output string)
 }
@@ -53,6 +54,7 @@ func stagesIndentation(stagesCount int) string {
 
 func (p *printer) SetContext(operation Operation, stagesCount int) {
 	p.operation = operation
+	p.stages = stagesCount
 	p.indentation = stagesIndentation(stagesCount)
 }
 
@@ -85,7 +87,7 @@ func (p *printer) Stage(stageIndex int, s recipe.Stage) {
 	p.descriptionAndURL(s.Metadata, p.indentation)
 }
 
-func (p *printer) Step(stepIndex, steps int, stepCommand string, s recipe.UnitMetadata) {
+func (p *printer) Step(stepIndex, steps int, s recipe.UnitMetadata) {
 	c := color.New(color.Bold, color.FgCyan)
 
 	fmt.Printf("\n")
@@ -100,12 +102,12 @@ func (p *printer) Step(stepIndex, steps int, stepCommand string, s recipe.UnitMe
 	}
 
 	p.descriptionAndURL(s, p.indentation)
+}
 
+func (p *printer) Command(cmd string) {
 	header := color.New(color.Faint, color.Bold)
-	if stepCommand != "" {
-		header.Printf("%sCommand: ", p.indentation)
-		color.New(color.Faint).Printf("%s\n", stepCommand)
-	}
+	header.Printf("%sCommand: ", p.indentation)
+	color.New(color.Faint).Printf("%s\n", cmd)
 }
 
 func (p *printer) ExecOutput(output string) {
