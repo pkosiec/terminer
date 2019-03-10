@@ -47,7 +47,7 @@ func (installer *Installer) Install() error {
 		for stepIndex, step := range stage.Steps {
 			installer.printer.Step(stepIndex, stepsLen, step.Metadata)
 
-			err := installer.sh.Exec(step.Execute)
+			err := installer.sh.Exec(step.Execute, true)
 			if err != nil {
 				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Metadata.Name, step.Metadata.Name)
 			}
@@ -83,7 +83,7 @@ func (installer *Installer) Rollback() error {
 			installer.printer.Step(stepIndex, stepsLen, step.Metadata)
 
 
-			err := installer.sh.Exec(step.Rollback)
+			err := installer.sh.Exec(step.Rollback, false)
 			if err != nil {
 				hasErrorOccurred = true
 			}

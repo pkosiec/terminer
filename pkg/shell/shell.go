@@ -21,7 +21,7 @@ type Command struct {
 // Shell gives an ability to run shell commands
 //go:generate mockery -name=Shell -output=automock -outpkg=automock -case=underscore
 type Shell interface {
-	Exec(command Command) error
+	Exec(command Command, stopOnError bool) error
 }
 
 // New creates a new instance that implements Shell interface
@@ -39,7 +39,7 @@ type shell struct {
 }
 
 // Exec executes given command in specified shell
-func (s *shell) Exec(command Command) error {
+func (s *shell) Exec(command Command, stopOnError bool) error {
 	if command.Shell == "" {
 		command.Shell = DefaultShell
 	}
@@ -55,7 +55,7 @@ func (s *shell) Exec(command Command) error {
 		}
 
 		err := s.runCmd(cmd)
-		if err != nil {
+		if err != nil && stopOnError {
 			return errors.Wrapf(err, "while executing %s", singleCmd)
 		}
 	}
