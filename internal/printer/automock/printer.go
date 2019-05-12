@@ -10,6 +10,11 @@ type Printer struct {
 	mock.Mock
 }
 
+// Command provides a mock function with given fields: cmd
+func (_m *Printer) Command(cmd string) {
+	_m.Called(cmd)
+}
+
 // ExecError provides a mock function with given fields: output
 func (_m *Printer) ExecError(output string) {
 	_m.Called(output)
@@ -35,7 +40,7 @@ func (_m *Printer) Stage(stageIndex int, s recipe.Stage) {
 	_m.Called(stageIndex, s)
 }
 
-// Step provides a mock function with given fields: stepIndex, steps, stepCommand, s
-func (_m *Printer) Step(stepIndex int, steps int, stepCommand string, s recipe.UnitMetadata) {
-	_m.Called(stepIndex, steps, stepCommand, s)
+// Step provides a mock function with given fields: stepIndex, steps, s
+func (_m *Printer) Step(stepIndex int, steps int, s recipe.UnitMetadata) {
+	_m.Called(stepIndex, steps, s)
 }

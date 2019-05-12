@@ -3,16 +3,17 @@ package shell
 import (
 	"bufio"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"os/exec"
 )
 
 // PrintFn prints command output
-type PrintFn func (string)
+type PrintFn func(string)
 
 // Command represents command to execute in given shell
 type Command struct {
-	Run   string
+	Run   []string
 	Shell string
 	Root  bool
 }
@@ -20,48 +21,63 @@ type Command struct {
 // Shell gives an ability to run shell commands
 //go:generate mockery -name=Shell -output=automock -outpkg=automock -case=underscore
 type Shell interface {
-	Exec(command Command, outputPrinter, errPrinter PrintFn) error
+	Exec(command Command, stopOnError bool) error
 }
 
 // New creates a new instance that implements Shell interface
-func New() Shell {
-	return &shell{}
+func New(printCmd PrintFn, printOut PrintFn, printErr PrintFn) Shell {
+	return &shell{printCmd: printCmd, printOut: printOut, printErr: printErr}
 }
 
 // DefaultShell defines in which shell all commands should be executed by default
 const DefaultShell = "/bin/sh"
 
-type shell struct{}
+type shell struct {
+	printCmd PrintFn
+	printOut PrintFn
+	printErr PrintFn
+}
 
 // Exec executes given command in specified shell
-func (s *shell) Exec(command Command, outputPrinter, errPrinter PrintFn) error {
+func (s *shell) Exec(command Command, stopOnError bool) error {
 	if command.Shell == "" {
 		command.Shell = DefaultShell
 	}
 
-	var cmd *exec.Cmd
-	if command.Root {
-		cmd = s.rootCommand(command)
-	} else {
-		cmd = exec.Command(command.Shell, "-c", command.Run)
+	for _, singleCmd := range command.Run {
+		s.printCmd(singleCmd)
+
+		var cmd *exec.Cmd
+		if command.Root {
+			cmd = s.rootCommand(command.Shell, singleCmd)
+		} else {
+			cmd = exec.Command(command.Shell, "-c", singleCmd)
+		}
+
+		err := s.runCmd(cmd)
+		if err != nil && stopOnError {
+			return errors.Wrapf(err, "while executing %s", singleCmd)
+		}
 	}
 
-	return s.runCmd(cmd, outputPrinter, errPrinter)
+	return nil
 }
 
-func (s *shell) runCmd(cmd *exec.Cmd, outputPrinter, errPrinter PrintFn) error {
+func (s *shell) runCmd(cmd *exec.Cmd) error {
 	stdOut, err := cmd.StdoutPipe()
+	defer stdOut.Close()
 	if err != nil {
 		return err
 	}
 
 	stdErr, err := cmd.StderrPipe()
+	defer stdErr.Close()
 	if err != nil {
 		return err
 	}
 
-	s.preparePipeScan(stdOut, outputPrinter)
-	s.preparePipeScan(stdErr, errPrinter)
+	s.preparePipeScan(stdOut, s.printOut)
+	s.preparePipeScan(stdErr, s.printErr)
 
 	err = cmd.Start()
 	if err != nil {
@@ -85,12 +101,12 @@ func (s *shell) preparePipeScan(pipe io.ReadCloser, printer PrintFn) {
 }
 
 // TODO: How to test it?
-func (s *shell) rootCommand(cmd Command) *exec.Cmd {
+func (s *shell) rootCommand(shell, cmd string) *exec.Cmd {
 	if !s.isCommandAvailable("sudo") {
-		return exec.Command("su", "-s", cmd.Shell, "-c", cmd.Run)
+		return exec.Command("su", "-s", shell, "-c", cmd)
 	}
 
-	return exec.Command("sudo", cmd.Shell, "-c", cmd.Run)
+	return exec.Command("sudo", shell, "-c", cmd)
 }
 
 func (s *shell) isCommandAvailable(cmdName string) bool {

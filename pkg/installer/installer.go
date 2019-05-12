@@ -26,7 +26,7 @@ func New(r *recipe.Recipe, p printer.Printer) (*Installer, error) {
 
 	return &Installer{
 		r:       r,
-		sh:      shell.New(),
+		sh:      shell.New(p.Command, p.ExecOutput, p.ExecError),
 		printer: p,
 	}, nil
 }
@@ -45,9 +45,9 @@ func (installer *Installer) Install() error {
 
 		stepsLen := len(stage.Steps)
 		for stepIndex, step := range stage.Steps {
-			installer.printer.Step(stepIndex, stepsLen, step.Execute.Run, step.Metadata)
+			installer.printer.Step(stepIndex, stepsLen, step.Metadata)
 
-			err := installer.sh.Exec(step.Execute, installer.printer.ExecOutput, installer.printer.ExecError)
+			err := installer.sh.Exec(step.Execute, true)
 			if err != nil {
 				return errors.Wrapf(err, "while executing command from Stage '%s', Step '%s'", stage.Metadata.Name, step.Metadata.Name)
 			}
@@ -80,9 +80,10 @@ func (installer *Installer) Rollback() error {
 			step := stage.Steps[j-1]
 			stepIndex := stepsLen - j
 
-			installer.printer.Step(stepIndex, stepsLen, step.Rollback.Run, step.Metadata)
+			installer.printer.Step(stepIndex, stepsLen, step.Metadata)
 
-			err := installer.sh.Exec(step.Rollback, installer.printer.ExecOutput, installer.printer.ExecError)
+
+			err := installer.sh.Exec(step.Rollback, false)
 			if err != nil {
 				hasErrorOccurred = true
 			}

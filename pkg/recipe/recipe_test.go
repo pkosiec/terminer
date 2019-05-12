@@ -157,7 +157,9 @@ func TestValidate(t *testing.T) {
 								Name: "Test",
 							},
 							Execute: shell.Command{
-								Run: "echo \"test\"",
+								Run: []string{
+									"echo \"test\"",
+								},
 							},
 						},
 					},
@@ -226,10 +228,14 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step1.stage1.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"Step 1 of Stage 1\"",
+							Run: []string{
+								"echo \"Step 1 of Stage 1\"",
+							},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"Rollback of Step 1 of Stage 1\"",
+							Run: []string{
+								"echo \"Rollback of Step 1 of Stage 1\"",
+							},
 						},
 					},
 					{
@@ -238,10 +244,14 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step2.stage1.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"Step 2 of Stage 1\"",
+							Run: []string{
+								"echo \"Step 2 of Stage 1\"",
+							},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"Rollback of Step 2 of Stage 1\"",
+							Run: []string{
+								"echo \"Rollback of Step 2 of Stage 1\"",
+							},
 						},
 					},
 				},
@@ -260,10 +270,14 @@ func fixRecipe(os string) *recipe.Recipe {
 						},
 						Execute: shell.Command{
 							Shell: "sh",
-							Run:   "echo \"Step 1 of Stage 2\"",
+							Run: []string{
+								"echo \"Step 1 of Stage 2\"",
+							},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"Rollback of Step 1 of Stage 2\"",
+							Run: []string{
+								"echo \"Rollback of Step 1 of Stage 2\"",
+							},
 						},
 					},
 					{
@@ -272,10 +286,14 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step2.stage2.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"Step 2 of Stage 2\"",
+							Run: []string{
+								"echo \"Step 2 of Stage 2\"",
+							},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"Rollback of Step 2 of Stage 2\"",
+							Run: []string{
+								"echo \"Rollback of Step 2 of Stage 2\"",
+							},
 						},
 					},
 				},

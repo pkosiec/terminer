@@ -151,8 +151,8 @@ func (r *Recipe) validateSteps(stage Stage) error {
 	}
 
 	for stepNo, step := range stage.Steps {
-		if step.Execute.Run == "" {
-			return fmt.Errorf("No command defined in step %d (%s)", stepNo+1, step.Metadata.Name)
+		if len(step.Execute.Run) == 0 {
+			return fmt.Errorf("No commands defined in step %d (%s)", stepNo+1, step.Metadata.Name)
 		}
 	}
 
