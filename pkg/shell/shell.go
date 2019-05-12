@@ -65,11 +65,13 @@ func (s *shell) Exec(command Command, stopOnError bool) error {
 
 func (s *shell) runCmd(cmd *exec.Cmd) error {
 	stdOut, err := cmd.StdoutPipe()
+	defer stdOut.Close()
 	if err != nil {
 		return err
 	}
 
 	stdErr, err := cmd.StderrPipe()
+	defer stdErr.Close()
 	if err != nil {
 		return err
 	}

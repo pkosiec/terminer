@@ -1,6 +1,6 @@
-# ZSH Starter
+# Zsh Starter
 
-ZSH shell starter packs. Installs ZSH shell along with `oh-my-zsh` framework, some useful packages and `pure` prompt.
+Zsh shell starter packs. Installs Zsh shell along with `oh-my-zsh` framework, some useful packages and `pure` prompt.
 
 ## Usage
 

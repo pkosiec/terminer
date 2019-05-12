@@ -9,7 +9,6 @@ import (
 	"github.com/pkosiec/terminer/pkg/shell"
 	"github.com/pkosiec/terminer/pkg/shell/automock"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"runtime"
 	"testing"
@@ -46,8 +45,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestInstaller_Install(t *testing.T) {
-	printerFn := mock.AnythingOfType("shell.PrintFn")
-
 	t.Run("Success", func(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
@@ -63,8 +60,8 @@ func TestInstaller_Install(t *testing.T) {
 			p.On("Stage", stageIdx, stage).Return().Once()
 
 			for stepIdx, step := range stage.Steps {
-				p.On("Step", stepIdx, len(stage.Steps), step.Execute.Run, step.Metadata).Return().Once()
-				shImpl.On("Exec", fixCommand(step.Execute.Run), printerFn, printerFn).Return( nil).Once()
+				p.On("Step", stepIdx, len(stage.Steps), step.Metadata).Return().Once()
+				shImpl.On("Exec", fixCommand(step.Execute.Run), true).Return(nil).Once()
 			}
 		}
 
@@ -90,11 +87,10 @@ func TestInstaller_Install(t *testing.T) {
 		stage := r.Stages[0]
 		step := stage.Steps[0]
 		p.On("Stage", 0, stage).Return().Once()
-		p.On("Step", 0, len(stage.Steps), step.Execute.Run, step.Metadata).Return().Once()
-
+		p.On("Step", 0, len(stage.Steps), step.Metadata).Return().Once()
 
 		shImpl := &automock.Shell{}
-		shImpl.On("Exec", fixCommand("echo \"C1/1\""), printerFn, printerFn).Return(testErr).Once()
+		shImpl.On("Exec", fixCommand([]string{"echo \"C1/1\""}), true).Return(testErr).Once()
 		defer shImpl.AssertExpectations(t)
 
 		i, err := installer.New(r, p)
@@ -109,8 +105,6 @@ func TestInstaller_Install(t *testing.T) {
 }
 
 func TestInstaller_Rollback(t *testing.T) {
-	printerFn := mock.AnythingOfType("shell.PrintFn")
-
 	t.Run("Success", func(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
@@ -121,20 +115,20 @@ func TestInstaller_Rollback(t *testing.T) {
 
 		stage := r.Stages[1]
 		p.On("Stage", 0, stage).Return().Once()
-		p.On("Step", 0, len(stage.Steps), stage.Steps[1].Rollback.Run, stage.Steps[1].Metadata).Return().Once()
-		p.On("Step", 1, len(stage.Steps), stage.Steps[0].Rollback.Run, stage.Steps[0].Metadata).Return().Once()
+		p.On("Step", 0, len(stage.Steps), stage.Steps[1].Metadata).Return().Once()
+		p.On("Step", 1, len(stage.Steps), stage.Steps[0].Metadata).Return().Once()
 
 		stage = r.Stages[0]
 		p.On("Stage", 1, stage).Return().Once()
-		p.On("Step", 0, len(r.Stages[0].Steps), stage.Steps[1].Rollback.Run, stage.Steps[1].Metadata).Return().Once()
-		p.On("Step", 1, len(r.Stages[0].Steps), stage.Steps[0].Rollback.Run, stage.Steps[0].Metadata).Return().Once()
+		p.On("Step", 0, len(r.Stages[0].Steps), stage.Steps[1].Metadata).Return().Once()
+		p.On("Step", 1, len(r.Stages[0].Steps), stage.Steps[0].Metadata).Return().Once()
 
 		shImpl := &automock.Shell{}
 		defer shImpl.AssertExpectations(t)
 
 		for _, stage := range r.Stages {
 			for _, step := range stage.Steps {
-				shImpl.On("Exec", fixCommand(step.Rollback.Run), printerFn, printerFn).Return( nil).Once()
+				shImpl.On("Exec", fixCommand(step.Rollback.Run), false).Return(nil).Once()
 			}
 		}
 
@@ -158,13 +152,13 @@ func TestInstaller_Rollback(t *testing.T) {
 
 		stage := r.Stages[1]
 		p.On("Stage", 0, stage).Return().Once()
-		p.On("Step", 0, len(stage.Steps), stage.Steps[1].Rollback.Run, stage.Steps[1].Metadata).Return().Once()
-		p.On("Step", 1, len(stage.Steps), stage.Steps[0].Rollback.Run, stage.Steps[0].Metadata).Return().Once()
+		p.On("Step", 0, len(stage.Steps), stage.Steps[1].Metadata).Return().Once()
+		p.On("Step", 1, len(stage.Steps), stage.Steps[0].Metadata).Return().Once()
 
 		stage = r.Stages[0]
 		p.On("Stage", 1, stage).Return().Once()
-		p.On("Step", 0, len(r.Stages[0].Steps), stage.Steps[1].Rollback.Run, stage.Steps[1].Metadata).Return().Once()
-		p.On("Step", 1, len(r.Stages[0].Steps), stage.Steps[0].Rollback.Run, stage.Steps[0].Metadata).Return().Once()
+		p.On("Step", 0, len(r.Stages[0].Steps), stage.Steps[1].Metadata).Return().Once()
+		p.On("Step", 1, len(r.Stages[0].Steps), stage.Steps[0].Metadata).Return().Once()
 		defer p.AssertExpectations(t)
 
 		shImpl := &automock.Shell{}
@@ -175,7 +169,7 @@ func TestInstaller_Rollback(t *testing.T) {
 
 		for _, stage := range r.Stages {
 			for _, step := range stage.Steps {
-				shImpl.On("Exec", fixCommand(step.Rollback.Run), printerFn, printerFn).Return( testErr).Once()
+				shImpl.On("Exec", fixCommand(step.Rollback.Run), false).Return(testErr).Once()
 			}
 		}
 
@@ -187,7 +181,7 @@ func TestInstaller_Rollback(t *testing.T) {
 	})
 }
 
-func fixCommand(run string) shell.Command {
+func fixCommand(run []string) shell.Command {
 	return shell.Command{
 		Run: run,
 	}
@@ -214,10 +208,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step1.stage1.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"C1/1\"",
+							Run: []string{"echo \"C1/1\""},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"R1/1\"",
+							Run: []string{"echo \"R1/1\""},
 						},
 					},
 					{
@@ -226,10 +220,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step2.stage1.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"C2/1\"",
+							Run: []string{"echo \"C2/1\""},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"R2/1\"",
+							Run: []string{"echo \"R2/1\""},
 						},
 					},
 				},
@@ -247,10 +241,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step1.stage2.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"C1/2\"",
+							Run:[]string{"echo \"C1/2\""},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"R1/2\"",
+							Run: []string{"echo \"R1/2\""},
 						},
 					},
 					{
@@ -259,10 +253,10 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step2.stage2.example.com",
 						},
 						Execute: shell.Command{
-							Run: "echo \"C2/2\"",
+							Run: []string{"echo \"C2/2\""},
 						},
 						Rollback: shell.Command{
-							Run: "echo \"R2/2\"",
+							Run: []string{"echo \"R2/2\""},
 						},
 					},
 				},
