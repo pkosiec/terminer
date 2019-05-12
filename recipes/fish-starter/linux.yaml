@@ -13,11 +13,12 @@ stages:
           url: https://fishshell.com/
         execute:
           run:
-            - "apt-get update"
-            - "apt-get -y install fish"
+            - apt-get update
+            - apt-get install -y git curl
+            - apt-get -y install fish
         rollback:
           run:
-            - "apt-get -y remove fish"
+            - apt-get -y remove fish
 
   - metadata:
       name: Fisher - Package manager
@@ -25,11 +26,11 @@ stages:
     steps:
       - execute:
           run:
-            - "curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish"
+            - curl https://git.io/fisher --create-dirs -sLo ~/.config/fish/functions/fisher.fish
           shell: fish
         rollback:
           run:
-            - "fisher self-uninstall"
+            - fisher self-uninstall
           shell: fish
 
   - metadata:
@@ -40,22 +41,22 @@ stages:
           url: https://github.com/franciscolourenco/done
         execute:
           run:
-            - "fisher add franciscolourenco/done"
+            - fisher add franciscolourenco/done
           shell: fish
         rollback:
           run:
-            - "fisher rm franciscolourenco/done"
+            - fisher rm franciscolourenco/done
           shell: fish
       - metadata:
           name: jethrokuan/z
-          url: "https://github.com/jethrokuan/z"
+          url: https://github.com/jethrokuan/z
         execute:
           run:
-            - "fisher add jethrokuan/z"
+            - fisher add jethrokuan/z
           shell: fish
         rollback:
           run:
-            - "fisher rm jethrokuan/z"
+            - fisher rm jethrokuan/z
           shell: fish
 
   - metadata:
@@ -66,11 +67,11 @@ stages:
           name: Download & Install
         execute:
           run:
-            - "fisher add rafaelrinaldi/pure"
+            - fisher add rafaelrinaldi/pure
           shell: fish
         rollback:
           run:
-            - "fisher rm rafaelrinaldi/pure"
+            - fisher rm rafaelrinaldi/pure
           shell: fish
 
   - metadata:
@@ -78,9 +79,9 @@ stages:
     steps:
       - execute:
           run:
-            - "chsh -s $(which fish)"
+            - chsh -s $(which fish)
           root: true
         rollback:
           run:
-            - "chsh -s $(which bash)"
+            - chsh -s $(which bash)
           root: true
