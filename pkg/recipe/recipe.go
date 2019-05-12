@@ -61,32 +61,32 @@ func FromPath(path string) (*Recipe, error) {
 }
 
 // FromPath downloads a file from given URL and uses it to create a Recipe
-func FromURL(url string) (*Recipe, error) {
+func FromURL(url string) (*Recipe, int, error) {
 	res, err := http.Get(url)
 	if err != nil {
-		return nil, errors.Wrapf(err, "while requesting recipe from URL %s", url)
+		return nil, 0, errors.Wrapf(err, "while requesting recipe from URL %s", url)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Invalid status code while downloading file from URL %s: %d. Expected: %d", url, res.StatusCode, http.StatusOK)
+		return nil, res.StatusCode, fmt.Errorf("Invalid status code while downloading file from URL %s: %d. Expected: %d", url, res.StatusCode, http.StatusOK)
 	}
 
 	bytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "while reading response body while downloading file from URL %s", url)
+		return nil, res.StatusCode, errors.Wrapf(err, "while reading response body while downloading file from URL %s", url)
 	}
 
 	if len(bytes) == 0 {
-		return nil, fmt.Errorf("Empty body while downloading file from URL %s", url)
+		return nil, res.StatusCode, fmt.Errorf("Empty body while downloading file from URL %s", url)
 	}
 
 	recipe, err := unmarshalRecipe(bytes)
 	if err != nil {
-		return nil, errors.Wrapf(err, "while loading recipe from URL %s", url)
+		return nil, res.StatusCode, errors.Wrapf(err, "while loading recipe from URL %s", url)
 	}
 
-	return recipe, nil
+	return recipe, res.StatusCode, nil
 }
 
 // Validate checks if the recipe is valid to run on current OS and whether all stages and steps are not empty

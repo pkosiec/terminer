@@ -14,9 +14,10 @@ Provide a relative or absolute path to a YAML file with recipe
 or an URL to download it.
 
 Examples:
-	terminer install ./recipe.yaml
-	terminer install /Users/sample-user/recipe.yaml
-	terminer install https://example.com/recipe.yaml
+	terminer install -f ./recipe.yaml
+	terminer install --file /Users/sample-user/recipe.yml
+	terminer install -u https://example.com/recipe.yaml
+	terminer install --url http://foo.bar/recipe.yml
 `,
 	Args: validateInstallRollbackArgs,
 	RunE: runInstall,

@@ -1,6 +1,9 @@
 package path
 
-import "strings"
+import (
+	"path/filepath"
+	"strings"
+)
 
 // IsURL checks if given string is an URL
 func IsURL(path string) bool {
@@ -15,4 +18,9 @@ func IsURL(path string) bool {
 	}
 
 	return false
+}
+
+// ContainsExtension checks if a path is ended with an extension
+func ContainsExtension(path string) bool {
+	return filepath.Ext(path) != ""
 }

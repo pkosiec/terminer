@@ -3,13 +3,15 @@ package cmd
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/pkosiec/terminer/internal/metadata"
 	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/pkg/installer"
 	"github.com/pkosiec/terminer/pkg/path"
 	"github.com/pkosiec/terminer/pkg/recipe"
-	"os"
-
 	"github.com/spf13/cobra"
+	"net/http"
+	"os"
+	"runtime"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -44,7 +46,27 @@ func setupInstaller(filePath string, p printer.Printer) (*installer.Installer, e
 	var err error
 
 	if path.IsURL(filePath) {
-		r, err = recipe.FromURL(filePath)
+		r, _, err = recipe.FromURL(filePath)
+	} else if !path.ContainsExtension(filePath) {
+		// treat it like recipe from official repository
+		url := fmt.Sprintf(
+			"https://raw.githubusercontent.com/%s/%s/%s/recipes/%s/%s.yaml",
+			metadata.Repository.Owner,
+			metadata.Repository.Name,
+			metadata.Repository.BranchName,
+			filePath,
+			runtime.GOOS,
+		)
+
+		var statusCode int
+		r, statusCode, err = recipe.FromURL(url)
+		if err != nil {
+			if statusCode == http.StatusNotFound {
+				return nil, fmt.Errorf("Cannot find recipe `%s` on official repository.\n", filePath)
+			}
+
+			return nil, errors.Wrapf(err, "Error while finding recipe `%s` on official repository", filePath)
+		}
 	} else {
 		r, err = recipe.FromPath(filePath)
 	}
