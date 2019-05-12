@@ -1,0 +1,173 @@
+os: linux
+metadata:
+  name: Zsh Starter
+  description: Set up Zsh shell with useful plugins
+
+stages:
+  - metadata:
+      name: Zsh Shell
+      url: https://www.zsh.org/
+    steps:
+    
+      - metadata:
+          name: Install
+        execute:
+          run:
+            - apt-get update
+            - apt-get install -y git curl
+            - apt-get install -y zsh 
+        rollback:
+          run:
+            - apt-get remove -y zsh
+
+  - metadata:
+      name: Oh-my-Zsh
+      url: https://github.com/robbyrussell/oh-my-zsh
+    steps:
+      - execute:
+          run:
+            - sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+        rollback:
+          run:
+            - yes | sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/uninstall.sh)"
+
+  - metadata:
+      name: Useful Oh-my-Zsh packages
+    steps:
+      - metadata:
+          name: zsh-completions
+          url: https://github.com/zsh-users/zsh-completions
+        execute:
+          run:
+            - git clone https://github.com/zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/zsh-completions
+            - sed -i 's/^plugins=(/plugins=(\ zsh-completions\ /g' ~/.zshrc
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/plugins/zsh-completions
+            - sed -i 's/\ zsh-completions\ /\ /g' ~/.zshrc
+      - metadata:
+          name: zsh-autosuggestions
+          url: https://github.com/zsh-users/zsh-autosuggestions
+        execute:
+          run:
+            - git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+            - sed -i 's/^plugins=(/plugins=(\ zsh-autosuggestions\ /g' ~/.zshrc
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+            - sed -i 's/\ zsh-autosuggestions\ /\ /g' ~/.zshrc
+      - metadata:
+          name: zsh-syntax-highlighting
+          url: https://github.com/zsh-users/zsh-syntax-highlighting
+        execute:
+          run:
+            - git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+            - sed -i 's/^plugins=(/plugins=(\ zsh-syntax-highlighting\ /g' ~/.zshrc
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+            - sed -i 's/\ zsh-syntax-highlighting\ /\ /g' ~/.zshrc
+      - metadata:
+          name: zsh-directory-history
+          url: https://github.com/tymm/zsh-directory-history
+        execute:
+          run:
+            - git clone https://github.com/tymm/zsh-directory-history ~/.oh-my-zsh/custom/plugins/zsh-directory-history
+            - sudo cp ~/.oh-my-zsh/custom/plugins/zsh-directory-history/dirhist /usr/local/bin/
+            - echo "source ~/.oh-my-zsh/custom/plugins/zsh-directory-history/directory-history.plugin.zsh" >> ~/.zshrc
+            - echo "bindkey '\\e[A' directory-history-search-backward" >> ~/.zshrc
+            - echo "bindkey '\\e[B' directory-history-search-forward" >> ~/.zshrc
+            - echo "bindkey '^P' history-substring-search-up" >> ~/.zshrc
+            - echo "bindkey '^N' history-substring-search-down" >> ~/.zshrc
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/plugins/zsh-directory-history
+            - sed -i "/^source ~\/.oh-my-zsh\/custom\/plugins\/zsh-directory-history\/directory-history\.plugin\.zsh/d" ~/.zshrc
+            - sed -i "/^bindkey .* directory-history-search-backward/d" ~/.zshrc
+            - sed -i "/^bindkey .* directory-history-search-forward/d" ~/.zshrc
+            - sed -i "/^bindkey .* history-substring-search-up/d" ~/.zshrc
+            - sed -i "/^bindkey .* history-substring-search-down/d" ~/.zshrc
+
+      - metadata:
+          name: z
+          url: https://github.com/rupa/z
+        execute:
+          run:
+            - git clone https://github.com/rupa/z.git ~/.oh-my-zsh/custom/z
+            - echo ". ~/.oh-my-zsh/custom/z/z.sh" >> ~/.zshrc
+            - sed -i 's/^plugins=(/plugins=(\ z\ /g' ~/.zshrc
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/z
+            - sed -i  "/^. ~\/.oh-my-zsh\/custom\/z\/z.sh/d" ~/.zshrc
+            - sed -i 's/\ z\ /\ /g' ~/.zshrc
+
+      - metadata:
+          name: Enable npm plugin
+        execute:
+          run:
+            - sed -i 's/^plugins=(/plugins=(\ npm\ /g' ~/.zshrc
+        rollback:
+          run:
+            - sed -i 's/\ npm\ /\ /g' ~/.zshrc
+      - metadata:
+          name: Enable docker plugin
+        execute:
+          run:
+            - sed -i 's/^plugins=(/plugins=(\ docker\ /g' ~/.zshrc
+        rollback:
+          run:
+            - sed -i 's/\ docker\ /\ /g' ~/.zshrc
+      - metadata:
+          name: Enable kubectl plugin
+        execute:
+          run:
+            - sed -i 's/^plugins=(/plugins=(\ kubectl\ /g' ~/.zshrc
+        rollback:
+          run:
+            - sed -i 's/\ kubectl\ /\ /g' ~/.zshrc
+
+  - metadata:
+      name: Pure Prompt
+      url: https://github.com/sindresorhus/pure
+    steps:
+      - metadata:
+          name: Download
+        execute:
+          run:
+            - git clone https://github.com/sindresorhus/pure.git ~/.oh-my-zsh/custom/pure-prompt
+        rollback:
+          run:
+            - rm -rf ~/.oh-my-zsh/custom/pure-prompt
+      - metadata:
+          name: Install
+        execute:
+          run:
+            - echo "fpath=( \"$HOME/.zfunctions\" $fpath )" >> ~/.zshrc
+            - source ~/.zshrc
+            - mkdir ~/.zfunctions
+            - ln -s "$HOME/.oh-my-zsh/custom/pure-prompt/pure.zsh" "$HOME/.zfunctions/prompt_pure_setup"
+            - ln -s "$HOME/.oh-my-zsh/custom/pure-prompt/async.zsh" "$HOME/.zfunctions/async"
+            - sed -i -e 's/^ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"\"/g' ~/.zshrc
+            - echo "autoload -U promptinit; promptinit" >> ~/.zshrc
+            - echo "prompt pure" >> ~/.zshrc
+          shell: zsh
+        rollback:
+          run:
+            - unlink ~/.zfunctions/prompt_pure_setup
+            - unlink ~/.zfunctions/async
+            - rm -rf ~/.zfunctions
+            - sed -i -e 's/^ZSH_THEME=\"\"/ZSH_THEME=\"robbyrussell\"/g' ~/.zshrc
+            - sed -i "/^autoload -U promptinit; promptinit/d" ~/.zshrc
+            - sed -i "/^prompt pure/d" ~/.zshrc
+  - metadata:
+      name: Set as default shell
+    steps:
+      - execute:
+          run:
+            - chsh -s $(which zsh)
+          root: true
+        rollback:
+          run:
+            - chsh -s $(which bash)
+          root: true
