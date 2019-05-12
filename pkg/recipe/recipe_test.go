@@ -44,30 +44,43 @@ func TestFromPath(t *testing.T) {
 	})
 }
 
+func TestFromRepository(t *testing.T) {
+	//TODO: Test it
+}
+
 func TestFromURL(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		expected := fixRecipe("testos")
 		server := setupRemoteRecipeServer(t, "./testdata/valid-recipe.yaml", false)
 		defer server.Close()
 
-		r, err := recipe.FromURL(server.URL)
+		r, _, err := recipe.FromURL(server.URL)
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, r)
 	})
 
 	t.Run("Not existing path", func(t *testing.T) {
-		_, err := recipe.FromURL("http://foo-bar.not-existing.url")
+		_, _, err := recipe.FromURL("http://foo-bar.not-existing.url")
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while requesting")
+	})
+
+	t.Run("Invalid URL", func(t *testing.T) {
+		_, _, err := recipe.FromURL("foo-bar.whatever")
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Incorrect recipe URL")
 	})
 
 	t.Run("Server Error", func(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "", true)
 		defer server.Close()
 
-		_, err := recipe.FromURL(server.URL)
+		_, statusCode, err := recipe.FromURL(server.URL)
+
+		assert.Equal(t, http.StatusInternalServerError, statusCode)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Invalid status code")
@@ -79,7 +92,7 @@ func TestFromURL(t *testing.T) {
 		}))
 		defer server.Close()
 
-		_, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while reading response body")
@@ -91,7 +104,7 @@ func TestFromURL(t *testing.T) {
 		}))
 		defer server.Close()
 
-		_, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Empty body")
@@ -101,7 +114,7 @@ func TestFromURL(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "./testdata/invalid-recipe.yaml", false)
 		defer server.Close()
 
-		_, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while loading recipe from URL")

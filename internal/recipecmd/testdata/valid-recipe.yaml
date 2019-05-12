@@ -24,6 +24,8 @@ stages:
           url: https://step2.stage1.example.com
         execute:
           run:
+          - ">&2 echo 'Write to error pipe'"
+          - echo ''
           - echo "Step 2 of Stage 1"
         rollback:
           run:

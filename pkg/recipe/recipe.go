@@ -2,6 +2,8 @@ package recipe
 
 import (
 	"fmt"
+	"github.com/pkosiec/terminer/internal/metadata"
+	"github.com/pkosiec/terminer/pkg/path"
 	"github.com/pkosiec/terminer/pkg/shell"
 	"io/ioutil"
 	"net/http"
@@ -62,6 +64,10 @@ func FromPath(path string) (*Recipe, error) {
 
 // FromPath downloads a file from given URL and uses it to create a Recipe
 func FromURL(url string) (*Recipe, int, error) {
+	if !path.IsURL(url) {
+		return nil, 0, fmt.Errorf("Incorrect recipe URL")
+	}
+
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, 0, errors.Wrapf(err, "while requesting recipe from URL %s", url)
@@ -87,6 +93,38 @@ func FromURL(url string) (*Recipe, int, error) {
 	}
 
 	return recipe, res.StatusCode, nil
+}
+
+// FromRepository downloads a recipe from official recipes repository
+func FromRepository(recipeName string) (*Recipe, error) {
+	url := fmt.Sprintf(
+		"https://raw.githubusercontent.com/%s/%s/%s/%s/%s/%s.yaml",
+		metadata.Repository.Owner,
+		metadata.Repository.Name,
+		metadata.Repository.BranchName,
+		metadata.Repository.RecipeDirectory,
+		recipeName,
+		runtime.GOOS,
+	)
+
+	recipeListURL := fmt.Sprintf("https://github.com/%s/%s/tree/%s/%s",
+		metadata.Repository.Owner,
+		metadata.Repository.Name,
+		metadata.Repository.BranchName,
+		metadata.Repository.RecipeDirectory,
+		)
+
+	var statusCode int
+	r, statusCode, err := FromURL(url)
+	if err != nil {
+		if statusCode == http.StatusNotFound {
+			return nil, fmt.Errorf("Cannot find recipe `%s` on official repository.\nSee the official list of the recipes on %s\n", recipeName, recipeListURL)
+		}
+
+		return nil, errors.Wrapf(err, "Error while finding recipe `%s` on official repository", recipeName)
+	}
+
+	return r, nil
 }
 
 // Validate checks if the recipe is valid to run on current OS and whether all stages and steps are not empty

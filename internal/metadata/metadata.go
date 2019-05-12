@@ -8,11 +8,12 @@ type RepositoryDetails struct {
 	Owner string
 	Name string
 	BranchName string
+	RecipeDirectory string
 }
-
 
 var Repository = RepositoryDetails{
 	Owner: "pkosiec",
 	Name: "terminer",
 	BranchName: "master",
+	RecipeDirectory: "recipes",
 }
