@@ -14,7 +14,8 @@ Terminer is an cross-platform installer for terminal presets. Install Fish or ZS
 - [Installation](#installation)
 - [Usage](#usage)
   - [Quick start](#quick-start)
-  - [Recipe](#recipe)
+  - [Available recipes](#available-recipes)
+  - [What is a Recipe](#what-is-a-recipe)
 - [Available commands](#available-commands)
   - [`install`](#install)
   - [`rollback`](#rollback)
@@ -61,9 +62,11 @@ To rollback a recipe from official repository, run:
 terminer rollback [recipe name]
 ```
 
-To see all official recipes, navigate to the [`recipes`](./recipes) directory.
+### Available recipes
 
-### Recipe
+To see all maintained recipes, navigate to the [**`recipes`**](./recipes) directory.
+
+### What is a Recipe
 
 Recipe is a YAML or JSON file with shell commands put in a proper order. Recipe consists of stages, which contain steps. Every step is a different shell command.
 
