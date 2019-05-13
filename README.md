@@ -35,18 +35,16 @@ Not anymore. Use Terminer. Bootstrap your complete shell configuration in a mome
 
 ## Installation
 
-> **:construction: There are no releases available yet.** It will change soon, but for now use Go binary to install this project. In future there will be placed a one-liner to install the project from latest GitHub release.
-
 To install this tool, run the following command:
 
 ```bash
-go get -u github.com/pkosiec/terminer
+curl -sfL https://raw.githubusercontent.com/pkosiec/terminer/master/install.sh | sh
 ```
 
 ## Usage
 
 Terminer operates on recipes, which consist of shell commands.
-The most basic commands are `install` and `rollback`.
+The most essential commands are `install` and `rollback`.
 
 ### Quick start
 
