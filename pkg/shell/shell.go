@@ -13,9 +13,9 @@ type PrintFn func(string)
 
 // Command represents command to execute in given shell
 type Command struct {
-	Run   []string
-	Shell string
-	Root  bool
+	Run   []string `yaml:"run",json:"run"`
+	Shell string `yaml:"shell",json:"shell"`
+	Root  bool `yaml:"root",json:"root"`
 }
 
 // Shell gives an ability to run shell commands

@@ -1,7 +1,12 @@
 package recipe_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/pkg/recipe"
+	"github.com/pkosiec/terminer/pkg/recipe/automock"
 	"github.com/pkosiec/terminer/pkg/shell"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -13,10 +18,19 @@ import (
 )
 
 func TestFromPath(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
+	t.Run("Success YAML", func(t *testing.T) {
 		expected := fixRecipe("testos")
 
 		r, err := recipe.FromPath("./testdata/valid-recipe.yaml")
+
+		require.NoError(t, err)
+		assert.Equal(t, expected, r)
+	})
+
+	t.Run("Success JSON", func(t *testing.T) {
+		expected := fixRecipe("testos")
+
+		r, err := recipe.FromPath("./testdata/valid-recipe.json")
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, r)
@@ -45,7 +59,65 @@ func TestFromPath(t *testing.T) {
 }
 
 func TestFromRepository(t *testing.T) {
-	//TODO: Test it
+	t.Run("Success", func(t *testing.T) {
+		expected := &recipe.Recipe{
+			OS: "test",
+			Metadata: recipe.UnitMetadata{
+				Name:        "Foo",
+				URL:         "foo.bar",
+				Description: "Lorem ipsum",
+			},
+			Stages: []recipe.Stage{
+				{
+					Metadata: recipe.UnitMetadata{
+						Name: "test",
+					},
+				},
+			},
+		}
+
+		b, err := json.Marshal(expected)
+		require.NoError(t, err)
+
+		resp := &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       ioutil.NopCloser(bytes.NewReader(b)),
+		}
+
+		httpCli := automock.HTTPClient{}
+		httpCli.On("Get", fmt.Sprintf("https://raw.githubusercontent.com/pkosiec/terminer/master/recipes/foo/%s.yaml", runtime.GOOS)).Return(resp, nil)
+
+		r, err := recipe.FromRepository("foo", &httpCli)
+
+		require.NoError(t, err)
+		assert.Equal(t, expected, r)
+	})
+
+	t.Run("Not found", func(t *testing.T) {
+		resp := http.Response{
+			StatusCode: http.StatusNotFound,
+			Body:       ioutil.NopCloser(nil),
+		}
+
+		httpCli := automock.HTTPClient{}
+		httpCli.On("Get", fmt.Sprintf("https://raw.githubusercontent.com/pkosiec/terminer/master/recipes/foo/%s.yaml", runtime.GOOS)).Return(&resp, nil)
+
+		_, err := recipe.FromRepository("foo", &httpCli)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Cannot find")
+	})
+
+	t.Run("Error", func(t *testing.T) {
+		testErr := errors.New("Test error")
+		httpCli := automock.HTTPClient{}
+		httpCli.On("Get", fmt.Sprintf("https://raw.githubusercontent.com/pkosiec/terminer/master/recipes/foo/%s.yaml", runtime.GOOS)).Return(nil, testErr)
+
+		_, err := recipe.FromRepository("foo", &httpCli)
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "Test error")
+	})
 }
 
 func TestFromURL(t *testing.T) {
@@ -54,21 +126,21 @@ func TestFromURL(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "./testdata/valid-recipe.yaml", false)
 		defer server.Close()
 
-		r, _, err := recipe.FromURL(server.URL)
+		r, _, err := recipe.FromURL(server.URL, http.DefaultClient)
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, r)
 	})
 
 	t.Run("Not existing path", func(t *testing.T) {
-		_, _, err := recipe.FromURL("http://foo-bar.not-existing.url")
+		_, _, err := recipe.FromURL("http://foo-bar.not-existing.url", http.DefaultClient)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while requesting")
 	})
 
 	t.Run("Invalid URL", func(t *testing.T) {
-		_, _, err := recipe.FromURL("foo-bar.whatever")
+		_, _, err := recipe.FromURL("foo-bar.whatever", nil)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Incorrect recipe URL")
@@ -78,7 +150,7 @@ func TestFromURL(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "", true)
 		defer server.Close()
 
-		_, statusCode, err := recipe.FromURL(server.URL)
+		_, statusCode, err := recipe.FromURL(server.URL, http.DefaultClient)
 
 		assert.Equal(t, http.StatusInternalServerError, statusCode)
 
@@ -92,7 +164,7 @@ func TestFromURL(t *testing.T) {
 		}))
 		defer server.Close()
 
-		_, _, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL, http.DefaultClient)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while reading response body")
@@ -104,7 +176,7 @@ func TestFromURL(t *testing.T) {
 		}))
 		defer server.Close()
 
-		_, _, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL, http.DefaultClient)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Empty body")
@@ -114,7 +186,7 @@ func TestFromURL(t *testing.T) {
 		server := setupRemoteRecipeServer(t, "./testdata/invalid-recipe.yaml", false)
 		defer server.Close()
 
-		_, _, err := recipe.FromURL(server.URL)
+		_, _, err := recipe.FromURL(server.URL, http.DefaultClient)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "while loading recipe from URL")
