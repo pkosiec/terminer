@@ -16,6 +16,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// AnyOS is OS string that matches any operating system
+const AnyOS = "any"
+
 // UnitMetadata stores metadata for a generic Recipe unit, such as Recipe, Stage or Step
 type UnitMetadata struct {
 	Name        string `yaml:"name",json:"name"`
@@ -174,7 +177,7 @@ func unmarshalRecipe(bytes []byte) (*Recipe, error) {
 
 func (r *Recipe) validateOS() error {
 	os := runtime.GOOS
-	if r.OS != os {
+	if r.OS != os && r.OS != AnyOS {
 		return fmt.Errorf("Invalid operating system. Required: %s. Actual: %s", r.OS, os)
 	}
 

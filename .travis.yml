@@ -12,7 +12,7 @@ go:
   - 1.11.x
 
 before_install:
-  - DEP_RELEASE_TAG='v0.4.1' curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - DEP_RELEASE_TAG='v0.5.0' curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 install:
   - dep ensure -v -vendor-only

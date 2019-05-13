@@ -1,4 +1,4 @@
-os: {CURRENT_OS_PLACEHOLDER}
+os: any
 
 metadata:
   name: Recipe

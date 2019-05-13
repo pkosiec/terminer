@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"os/exec"
+	"strings"
 )
 
 // PrintFn prints command output
@@ -14,8 +15,8 @@ type PrintFn func(string)
 // Command represents command to execute in given shell
 type Command struct {
 	Run   []string `yaml:"run",json:"run"`
-	Shell string `yaml:"shell",json:"shell"`
-	Root  bool `yaml:"root",json:"root"`
+	Shell string   `yaml:"shell",json:"shell"`
+	Root  bool     `yaml:"root",json:"root"`
 }
 
 // Shell gives an ability to run shell commands
@@ -44,8 +45,15 @@ func (s *shell) Exec(command Command, stopOnError bool) error {
 		command.Shell = DefaultShell
 	}
 
+	var errMessages []string
+
 	for _, singleCmd := range command.Run {
-		s.printCmd(singleCmd)
+		var prefix string
+		if command.Root {
+			prefix = "$ "
+		}
+
+		s.printCmd(fmt.Sprintf("%s%s", prefix, singleCmd))
 
 		var cmd *exec.Cmd
 		if command.Root {
@@ -55,9 +63,18 @@ func (s *shell) Exec(command Command, stopOnError bool) error {
 		}
 
 		err := s.runCmd(cmd)
-		if err != nil && stopOnError {
-			return errors.Wrapf(err, "while executing %s", singleCmd)
+		if err != nil {
+			wrappedErr := errors.Wrapf(err, "while executing %s", singleCmd)
+			if stopOnError {
+				return wrappedErr
+			}
+
+			errMessages = append(errMessages, wrappedErr.Error())
 		}
+	}
+
+	if len(errMessages) > 0 {
+		return errors.New(strings.Join(errMessages, ",\n"))
 	}
 
 	return nil
@@ -100,7 +117,7 @@ func (s *shell) preparePipeScan(pipe io.ReadCloser, printer PrintFn) {
 	}()
 }
 
-// TODO: How to test it?
+// TODO: Test it
 func (s *shell) rootCommand(shell, cmd string) *exec.Cmd {
 	if !s.isCommandAvailable("sudo") {
 		return exec.Command("su", "-s", shell, "-c", cmd)

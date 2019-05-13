@@ -202,6 +202,14 @@ func TestValidate(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("All OSes", func(t *testing.T) {
+		r := fixRecipe("any")
+
+		err := r.Validate()
+
+		assert.NoError(t, err)
+	})
+
 	t.Run("Invalid OS", func(t *testing.T) {
 		r := fixRecipe("notexistingos")
 
