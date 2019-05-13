@@ -15,7 +15,6 @@ Terminer is an cross-platform installer for terminal presets. Install Fish or ZS
 - [Usage](#usage)
   - [Quick start](#quick-start)
   - [Recipe](#recipe)
-- [Recipes](#recipes)
 - [Available commands](#available-commands)
   - [`install`](#install)
   - [`rollback`](#rollback)
@@ -50,21 +49,23 @@ The most basic commands are `install` and `rollback`.
 
 ### Quick start
 
-To install a recipe, run:
+To install a recipe from official repository, run:
 
 ```bash
-terminer install [file path or URL]
+terminer install [recipe name]
 ```
 
-To rollback a recipe, run:
+To rollback a recipe from official repository, run:
 
 ```bash
-terminer rollback [file path or URL]
+terminer rollback [recipe name]
 ```
+
+To see all official recipes, navigate to the [`recipes`](./recipes) directory.
 
 ### Recipe
 
-Recipe is a YAML file with shell commands put in a proper order. Recipe consists of stages, which contain steps. Every step is a different shell command.
+Recipe is a YAML or JSON file with shell commands put in a proper order. Recipe consists of stages, which contain steps. Every step is a different shell command.
 
 This is an example recipe, which just prints messages for all steps in all stages - not only during install, but also for rollback operation:
 
@@ -109,50 +110,60 @@ stages:
           run: echo "Rollback of Step 1 of Stage 2"
 ```
 
-## Recipes
-
-To see all official recipes, navigate to the [`recipes`](./recipes) directory.
-
 ## Available commands
 
 The following section describes all available commands in Terminer CLI.
 
 ### `install`
 
-Install command installs a recipe from a local or remote file. Provide a relative or absolute path to a YAML file with recipe or an URL to download it.
+Install command installs a recipe from the official recipe repository. You can use additional flags to install a recipe from a local or remote file.
 
 **Usage**
 
 ```bash
-terminer install [file path or URL]
+terminer install [recipe name]
 ```
+
+**Flags**
+
+  -f, --filepath string   Recipe file path
+  -h, --help              help for install
+  -u, --url string        Recipe URL
 
 **Examples**
 
 ```
-terminer install ./recipe.yaml`
-terminer install /Users/$USER/recipe.yaml`
-terminer install https://example.com/recipe.yaml`
+terminer install zsh-starter
+terminer install -f ./recipe.yaml
+terminer install --file /Users/sample-user/recipe.yml
+terminer install -u https://example.com/recipe.yaml
+terminer install --url http://foo.bar/recipe.yml
 ```
 
 ### `rollback`
 
-Rollback command rollbacks a recipe from a local or remote file.
-Provide a relative or absolute path to a YAML file with recipe
-or an URL to download it.
+Rollback command uninstalls a recipe from the official recipe repository. You can use additional flags to rollback a recipe from a local or remote file.
 
 **Usage**
 
 ```bash
-terminer rollback [file path or URL]
+terminer rollback [recipe name]
 ```
+
+**Flags**
+
+  -f, --filepath string   Recipe file path
+  -h, --help              help for install
+  -u, --url string        Recipe URL
 
 **Examples**
 
 ```bash
-terminer rollback ./recipe.yaml
-terminer rollback /Users/sample-user/recipe.yaml
-terminer rollback https://example.com/recipe.yaml
+terminer rollback zsh-starter
+terminer rollback -f ./recipe.yaml
+terminer rollback --file /Users/sample-user/recipe.yml
+terminer rollback -u https://example.com/recipe.yaml
+terminer rollback --url http://foo.bar/recipe.yml
 ```
 
 ### `version`

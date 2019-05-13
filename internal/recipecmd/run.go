@@ -5,6 +5,7 @@ import (
 	"github.com/pkosiec/terminer/pkg/installer"
 	"github.com/pkosiec/terminer/pkg/recipe"
 	"github.com/spf13/cobra"
+	"net/http"
 )
 
 type RunType string
@@ -43,9 +44,9 @@ func loadRecipeAndSetupInstaller(recipeNames []string, URL, filePath string, p p
 	var err error
 
 	if len(recipeNames) > 0 && recipeNames[0] != "" {
-		r, err = recipe.FromRepository(recipeNames[0])
+		r, err = recipe.FromRepository(recipeNames[0], http.DefaultClient)
 	} else if URL != "" {
-		r, _, err = recipe.FromURL(URL)
+		r, _, err = recipe.FromURL(URL, http.DefaultClient)
 	} else if filePath != "" {
 		r, err = recipe.FromPath(filePath)
 	}
