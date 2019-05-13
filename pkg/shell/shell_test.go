@@ -199,7 +199,8 @@ func TestShell_Exec(t *testing.T) {
 			},
 			Root: false,
 		}, false)
-		require.NoError(t, err)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "while executing exit 1")
 	})
 }
 

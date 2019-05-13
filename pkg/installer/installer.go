@@ -82,7 +82,6 @@ func (installer *Installer) Rollback() error {
 
 			installer.printer.Step(stepIndex, stepsLen, step.Metadata)
 
-
 			err := installer.sh.Exec(step.Rollback, false)
 			if err != nil {
 				hasErrorOccurred = true

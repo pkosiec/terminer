@@ -1,6 +1,8 @@
 package path
 
-import "strings"
+import (
+	"strings"
+)
 
 // IsURL checks if given string is an URL
 func IsURL(path string) bool {

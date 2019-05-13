@@ -1,12 +1,14 @@
-package cmd
+package cmd_test
 
 import (
+	"github.com/pkosiec/terminer/cmd"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestRunVersion(t *testing.T) {
+func TestPrintVersion(t *testing.T) {
 	assert.NotPanics(t, func() {
-		runVersion(nil, nil)
+		cmd.PrintVersion(nil, nil)
 	})
 }
+
