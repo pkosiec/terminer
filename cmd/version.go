@@ -10,13 +10,13 @@ import (
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Prints the application version",
-	Run:   PrintVersion,
+	Run:   printVersion,
 }
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
 }
 
-func PrintVersion(_ *cobra.Command, _ []string) {
+func printVersion(_ *cobra.Command, _ []string) {
 	printer.New().AppInfo(metadata.AppName, metadata.Version, metadata.URL)
 }

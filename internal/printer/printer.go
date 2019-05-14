@@ -2,20 +2,16 @@ package printer
 
 import (
 	"fmt"
+	"github.com/pkosiec/terminer/pkg/shared"
+
 	"github.com/fatih/color"
 	"github.com/pkosiec/terminer/pkg/recipe"
 )
 
-type Operation string
-
-const (
-	OperationInstall  Operation = "installation"
-	OperationRollback Operation = "rollback"
-)
-
+// Printer is an interface of a module, which outputs text to the standard output
 //go:generate mockery -name=Printer -output=automock -outpkg=automock -case=underscore
 type Printer interface {
-	SetContext(operation Operation, stagesCount int)
+	SetContext(operation shared.Operation, stagesCount int)
 	Recipe(r recipe.UnitMetadata)
 	Stage(stageIndex int, s recipe.Stage)
 	Step(stepIndex, steps int, s recipe.UnitMetadata)
@@ -25,11 +21,12 @@ type Printer interface {
 }
 
 type printer struct {
-	operation   Operation
+	operation   shared.Operation
 	stages      int
 	indentation string
 }
 
+// New creates a new Printer
 func New() *printer {
 	return &printer{}
 }
@@ -52,7 +49,7 @@ func stagesIndentation(stagesCount int) string {
 	return indentation
 }
 
-func (p *printer) SetContext(operation Operation, stagesCount int) {
+func (p *printer) SetContext(operation shared.Operation, stagesCount int) {
 	p.operation = operation
 	p.stages = stagesCount
 	p.indentation = stagesIndentation(stagesCount)
@@ -75,7 +72,7 @@ func (p *printer) Stage(stageIndex int, s recipe.Stage) {
 	c := color.New(color.Bold, color.FgBlue)
 
 	var name string
-	if p.operation == OperationRollback {
+	if p.operation == shared.OperationRollback {
 		name = fmt.Sprintf("Reverting '%s'", s.Metadata.Name)
 	} else {
 		name = s.Metadata.Name

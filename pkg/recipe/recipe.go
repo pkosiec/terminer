@@ -3,15 +3,16 @@ package recipe
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkosiec/terminer/internal/metadata"
-	"github.com/pkosiec/terminer/pkg/path"
-	"github.com/pkosiec/terminer/pkg/shell"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/pkosiec/terminer/internal/metadata"
+	"github.com/pkosiec/terminer/pkg/path"
+	"github.com/pkosiec/terminer/pkg/shell"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -37,12 +38,12 @@ type Recipe struct {
 // Stage represents a logical part of recipe that consists of steps
 type Stage struct {
 	Metadata UnitMetadata `yaml:"metadata" json:"metadata"`
-	Steps    []Step `yaml:"steps" json:"steps"`
+	Steps    []Step       `yaml:"steps" json:"steps"`
 }
 
 // Step contains data about a single shell command, which can be installed or reverted
 type Step struct {
-	Metadata UnitMetadata `yaml:"metadata" json:"metadata"`
+	Metadata UnitMetadata  `yaml:"metadata" json:"metadata"`
 	Execute  shell.Command `yaml:"execute" json:"execute"`
 	Rollback shell.Command `yaml:"rollback" json:"rollback"`
 }
@@ -73,7 +74,7 @@ type HTTPClient interface {
 	Get(url string) (resp *http.Response, err error)
 }
 
-// FromPath downloads a file from given URL and uses it to create a Recipe
+// FromURL downloads a file from given URL and uses it to create a Recipe
 func FromURL(url string, httpClient HTTPClient) (*Recipe, int, error) {
 	if !path.IsURL(url) {
 		return nil, 0, fmt.Errorf("Incorrect recipe URL")

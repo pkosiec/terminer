@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/pkg/recipe"
+	"github.com/pkosiec/terminer/pkg/shared"
 	"github.com/pkosiec/terminer/pkg/shell"
 )
 
@@ -34,7 +35,7 @@ func New(r *recipe.Recipe, p printer.Printer) (*Installer, error) {
 // Install installs a recipe by executing all steps in all stages
 func (installer *Installer) Install() error {
 	stagesCount := len(installer.r.Stages)
-	installer.printer.SetContext(printer.OperationInstall, stagesCount)
+	installer.printer.SetContext(shared.OperationInstall, stagesCount)
 
 	stages := installer.r.Stages
 
@@ -60,7 +61,7 @@ func (installer *Installer) Install() error {
 // Rollback reverts a recipe by executing all steps in all stages in reverse order
 func (installer *Installer) Rollback() error {
 	stagesCount := len(installer.r.Stages)
-	installer.printer.SetContext(printer.OperationRollback, stagesCount)
+	installer.printer.SetContext(shared.OperationRollback, stagesCount)
 
 	stages := installer.r.Stages
 	stagesLen := len(stages)
@@ -90,7 +91,7 @@ func (installer *Installer) Rollback() error {
 	}
 
 	if hasErrorOccurred {
-		return errors.New("Error(s) received during steps execution. See the logs for details.")
+		return errors.New("Error(s) received during steps execution. See the logs for details")
 	}
 
 	return nil

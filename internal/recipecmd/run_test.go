@@ -2,6 +2,7 @@ package recipecmd_test
 
 import (
 	"github.com/pkosiec/terminer/internal/recipecmd"
+	"github.com/pkosiec/terminer/pkg/shared"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -20,7 +21,7 @@ func TestRun(t *testing.T) {
 	urlBak := recipecmd.URL
 
 	t.Run("Install", func(t *testing.T) {
-		installFn := recipecmd.Run(recipecmd.Install)
+		installFn := recipecmd.Run(shared.OperationInstall)
 
 		t.Run("Valid recipe from path", func(t *testing.T) {
 			recipecmd.FilePath = ValidRecipePath
@@ -102,7 +103,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("Rollback", func(t *testing.T) {
-		rollbackFn := recipecmd.Run(recipecmd.Rollback)
+		rollbackFn := recipecmd.Run(shared.OperationRollback)
 
 		t.Run("Valid recipe", func(t *testing.T) {
 			recipecmd.FilePath = ValidRecipePath
