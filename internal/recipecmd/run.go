@@ -1,21 +1,17 @@
 package recipecmd
 
 import (
+	"github.com/pkosiec/terminer/pkg/shared"
+	"net/http"
+
 	"github.com/pkosiec/terminer/internal/printer"
 	"github.com/pkosiec/terminer/pkg/installer"
 	"github.com/pkosiec/terminer/pkg/recipe"
 	"github.com/spf13/cobra"
-	"net/http"
 )
 
-type RunType string
-
-var (
-	Install  RunType = "Install"
-	Rollback RunType = "Rollback"
-)
-
-func Run(runType RunType) func(cmd *cobra.Command, args []string) error {
+// Run returns an function to handle command operation
+func Run(operation shared.Operation) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		p := printer.New()
 		i, err := loadRecipeAndSetupInstaller(args, URL, FilePath, p)
@@ -24,10 +20,10 @@ func Run(runType RunType) func(cmd *cobra.Command, args []string) error {
 		}
 
 		err = func() error {
-			switch runType {
-			case Install:
+			switch operation {
+			case shared.OperationInstall:
 				return i.Install()
-			case Rollback:
+			case shared.OperationRollback:
 				return i.Rollback()
 			}
 

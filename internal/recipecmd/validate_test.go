@@ -11,26 +11,26 @@ func TestValidateArgs(t *testing.T) {
 	filePathBak := recipecmd.FilePath
 	urlBak := recipecmd.URL
 
-	testCases := []struct{
-		FilePath string
-		URL string
-		args []string
+	testCases := []struct {
+		FilePath    string
+		URL         string
+		args        []string
 		expectedErr bool
 	}{
 		{
-			FilePath: "./test.md",
+			FilePath:    "./test.md",
 			expectedErr: false,
 		},
 		{
-			URL: "https://example.com",
+			URL:         "https://example.com",
 			expectedErr: false,
 		},
 		{
-			args: []string{"test-recipe"},
+			args:        []string{"test-recipe"},
 			expectedErr: false,
 		},
 		{
-			args: []string{"test-recipe", "test-recipe2"},
+			args:        []string{"test-recipe", "test-recipe2"},
 			expectedErr: true,
 		},
 		{

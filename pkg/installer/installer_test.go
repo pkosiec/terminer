@@ -2,10 +2,10 @@ package installer_test
 
 import (
 	"github.com/pkg/errors"
-	"github.com/pkosiec/terminer/internal/printer"
 	printerAutomock "github.com/pkosiec/terminer/internal/printer/automock"
 	"github.com/pkosiec/terminer/pkg/installer"
 	"github.com/pkosiec/terminer/pkg/recipe"
+	"github.com/pkosiec/terminer/pkg/shared"
 	"github.com/pkosiec/terminer/pkg/shell"
 	"github.com/pkosiec/terminer/pkg/shell/automock"
 	"github.com/stretchr/testify/assert"
@@ -49,7 +49,7 @@ func TestInstaller_Install(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
 		p := &printerAutomock.Printer{}
-		p.On("SetContext", printer.OperationInstall, 2).Return().Once()
+		p.On("SetContext", shared.OperationInstall, 2).Return().Once()
 		p.On("Recipe", r.Metadata).Return().Once()
 		defer p.AssertExpectations(t)
 
@@ -80,7 +80,7 @@ func TestInstaller_Install(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
 		p := &printerAutomock.Printer{}
-		p.On("SetContext", printer.OperationInstall, 2).Return().Once()
+		p.On("SetContext", shared.OperationInstall, 2).Return().Once()
 		p.On("Recipe", r.Metadata).Return().Once()
 		defer p.AssertExpectations(t)
 
@@ -109,7 +109,7 @@ func TestInstaller_Rollback(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
 		p := &printerAutomock.Printer{}
-		p.On("SetContext", printer.OperationRollback, 2).Return().Once()
+		p.On("SetContext", shared.OperationRollback, 2).Return().Once()
 		p.On("Recipe", r.Metadata).Return().Once()
 		defer p.AssertExpectations(t)
 
@@ -147,7 +147,7 @@ func TestInstaller_Rollback(t *testing.T) {
 		r := fixRecipe(runtime.GOOS)
 
 		p := &printerAutomock.Printer{}
-		p.On("SetContext", printer.OperationRollback, 2).Return().Once()
+		p.On("SetContext", shared.OperationRollback, 2).Return().Once()
 		p.On("Recipe", r.Metadata).Return().Once()
 
 		stage := r.Stages[1]
@@ -241,7 +241,7 @@ func fixRecipe(os string) *recipe.Recipe {
 							URL:  "https://step1.stage2.example.com",
 						},
 						Execute: shell.Command{
-							Run:[]string{"echo \"C1/2\""},
+							Run: []string{"echo \"C1/2\""},
 						},
 						Rollback: shell.Command{
 							Run: []string{"echo \"R1/2\""},

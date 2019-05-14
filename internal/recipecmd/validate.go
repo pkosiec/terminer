@@ -5,8 +5,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ValidateArgs validates arguments for commands related to recipes
 func ValidateArgs(_ *cobra.Command, args []string) error {
-	if (len(args) == 0 || len(args) > 1 ) && URL == "" && FilePath == "" {
+	if (len(args) == 0 || len(args) > 1) && URL == "" && FilePath == "" {
 		return errors.New(`This command requires single recipe name from the official repository.
 You can also use additional flags to load recipe from disk or URL.
 `)

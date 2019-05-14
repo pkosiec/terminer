@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/pkosiec/terminer/internal/recipecmd"
+	"github.com/pkosiec/terminer/pkg/shared"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +21,7 @@ Examples:
 	terminer install --url http://foo.bar/recipe.yml
 `,
 	Args:                  recipecmd.ValidateArgs,
-	RunE:                  recipecmd.Run(recipecmd.Install),
+	RunE:                  recipecmd.Run(shared.OperationInstall),
 	DisableFlagsInUseLine: true,
 }
 

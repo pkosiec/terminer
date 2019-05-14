@@ -11,4 +11,3 @@ func TestPrintVersion(t *testing.T) {
 		cmd.PrintVersion(nil, nil)
 	})
 }
-
