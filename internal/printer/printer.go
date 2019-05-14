@@ -127,7 +127,7 @@ func (p *printer) Result(err error) {
 
 	if err != nil {
 		_, _ = result.Add(color.FgRed).Printf("Error:\n")
-		_, _ = color.New(color.FgRed).Printf(err.Error())
+		_, _ = color.New(color.FgRed).Println(err.Error())
 		return
 	}
 
