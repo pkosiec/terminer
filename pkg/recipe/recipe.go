@@ -7,6 +7,7 @@ import (
 	"github.com/pkosiec/terminer/pkg/path"
 	"github.com/pkosiec/terminer/pkg/shell"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"runtime"
@@ -21,29 +22,29 @@ const AnyOS = "any"
 
 // UnitMetadata stores metadata for a generic Recipe unit, such as Recipe, Stage or Step
 type UnitMetadata struct {
-	Name        string `yaml:"name",json:"name"`
-	Description string `yaml:"description",json:"description"`
-	URL         string `yaml:"url",json:"url"`
+	Name        string `yaml:"name" json:"name"`
+	Description string `yaml:"description" json:"description"`
+	URL         string `yaml:"url" json:"url"`
 }
 
 // Recipe stores needed steps to install a gjven piece of functionality
 type Recipe struct {
-	OS       string       `yaml:"os",json:"os"`
-	Metadata UnitMetadata `yaml:"metadata",json:"metadata"`
-	Stages   []Stage      `yaml:"stages",json:"stages"`
+	OS       string       `yaml:"os" json:"os"`
+	Metadata UnitMetadata `yaml:"metadata" json:"metadata"`
+	Stages   []Stage      `yaml:"stages" json:"stages"`
 }
 
 // Stage represents a logical part of recipe that consists of steps
 type Stage struct {
-	Metadata UnitMetadata `yaml:"metadata",json:"metadata"`
-	Steps    []Step `yaml:"steps",json:"steps"`
+	Metadata UnitMetadata `yaml:"metadata" json:"metadata"`
+	Steps    []Step `yaml:"steps" json:"steps"`
 }
 
 // Step contains data about a single shell command, which can be installed or reverted
 type Step struct {
-	Metadata UnitMetadata `yaml:"metadata",json:"metadata"`
-	Execute  shell.Command `yaml:"execute",json:"execute"`
-	Rollback shell.Command `yaml:"rollback",json:"rollback"`
+	Metadata UnitMetadata `yaml:"metadata" json:"metadata"`
+	Execute  shell.Command `yaml:"execute" json:"execute"`
+	Rollback shell.Command `yaml:"rollback" json:"rollback"`
 }
 
 // FromPath creates a Recipe from given file
@@ -82,7 +83,12 @@ func FromURL(url string, httpClient HTTPClient) (*Recipe, int, error) {
 	if err != nil {
 		return nil, 0, errors.Wrapf(err, "while requesting recipe from URL %s", url)
 	}
-	defer res.Body.Close()
+	defer func() {
+		err = res.Body.Close()
+		if err != nil {
+			log.Println(errors.Wrapf(err, "while closing response body").Error())
+		}
+	}()
 
 	if res.StatusCode != http.StatusOK {
 		return nil, res.StatusCode, fmt.Errorf("Invalid status code while downloading file from URL %s: %d. Expected: %d", url, res.StatusCode, http.StatusOK)

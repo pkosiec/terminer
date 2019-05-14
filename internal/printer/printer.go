@@ -62,10 +62,10 @@ func (p *printer) Recipe(r recipe.UnitMetadata) {
 	c := color.New(color.Bold, color.FgBlue)
 
 	c.DisableColor()
-	c.Printf("Starting %s...\n\n", p.operation)
+	_, _ = c.Printf("Starting %s...\n\n", p.operation)
 
 	c.EnableColor()
-	c.Printf("%s\n", r.Name)
+	_, _ = c.Printf("%s\n", r.Name)
 	c.DisableColor()
 
 	p.descriptionAndURL(r, "")
@@ -82,7 +82,7 @@ func (p *printer) Stage(stageIndex int, s recipe.Stage) {
 	}
 
 	stageCounter := fmt.Sprintf("[%d/%d] ", stageIndex+1, p.stages)
-	c.Printf("\n%s%s\n", stageCounter, name)
+	_, _ = c.Printf("\n%s%s\n", stageCounter, name)
 
 	p.descriptionAndURL(s.Metadata, p.indentation)
 }
@@ -98,7 +98,7 @@ func (p *printer) Step(stepIndex, steps int, s recipe.UnitMetadata) {
 	}
 
 	if s.Name != "" {
-		c.Printf("%s%s%s\n", p.indentation, stepCounter, s.Name)
+		_, _ = c.Printf("%s%s%s\n", p.indentation, stepCounter, s.Name)
 	}
 
 	p.descriptionAndURL(s, p.indentation)
@@ -106,8 +106,8 @@ func (p *printer) Step(stepIndex, steps int, s recipe.UnitMetadata) {
 
 func (p *printer) Command(cmd string) {
 	header := color.New(color.Faint, color.Bold)
-	header.Printf("%sCommand: ", p.indentation)
-	color.New(color.Faint).Printf("%s\n", cmd)
+	_, _ = header.Printf("%sCommand: ", p.indentation)
+	_, _ = color.New(color.Faint).Printf("%s\n", cmd)
 }
 
 func (p *printer) ExecOutput(output string) {
@@ -126,15 +126,15 @@ func (p *printer) AppInfo(appName, version, url string) {
 
 func (p *printer) Result(err error) {
 	result := color.New(color.Bold)
-	result.Printf("\n")
+	_, _ = result.Printf("\n")
 
 	if err != nil {
-		result.Add(color.FgRed).Printf("Error:\n")
-		color.New(color.FgRed).Printf(err.Error())
+		_, _ = result.Add(color.FgRed).Printf("Error:\n")
+		_, _ = color.New(color.FgRed).Printf(err.Error())
 		return
 	}
 
-	result.Add(color.FgGreen).Println("Success")
+	_, _ = result.Add(color.FgGreen).Println("Success")
 }
 
 func (p *printer) descriptionAndURL(m recipe.UnitMetadata, indentation string) {
@@ -152,5 +152,5 @@ func (p *printer) stepOutput(output string, outputFormatter *color.Color) {
 		return
 	}
 
-	outputFormatter.Printf("%s%s\n", p.indentation, output)
+	_, _ = outputFormatter.Printf("%s%s\n", p.indentation, output)
 }
