@@ -75,6 +75,29 @@ stages:
           shell: fish
 
   - metadata:
+      name: Powerline fonts
+      url: https://github.com/powerline/fonts
+    steps:
+      - metadata:
+          name: Download
+        execute:
+          run: 
+            - git clone https://github.com/powerline/fonts ~/.terminer/powerline-fonts
+      - metadata:
+          name: Install
+        execute:
+          run:
+            - ~/.terminer/powerline-fonts/install.sh
+            - rm -rf ~/.terminer/powerline-fonts
+            - echo "**NOTE:** Fonts installed successfully. After recipe installation, set the 'Meslo' font in your terminal emulator."
+        rollback:
+          run:
+            - git clone https://github.com/powerline/fonts ~/.terminer/powerline-fonts
+            - ~/.terminer/powerline-fonts/uninstall.sh
+            - rm -rf ~/.terminer/powerline-fonts
+          root: true
+
+  - metadata:
       name: Set as default shell
     steps:
       - execute:
