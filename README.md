@@ -35,11 +35,19 @@ Not anymore. Use Terminer. Bootstrap your complete shell configuration in a mome
 
 ## Installation
 
-To install this tool, run the following command:
+To install this tool into `/usr/local/bin` directory, run the following command:
 
 ```bash
-curl -sfL https://raw.githubusercontent.com/pkosiec/terminer/master/install.sh | sh
+curl -sfL https://raw.githubusercontent.com/pkosiec/terminer/master/install.sh | sh -s -- -b /usr/local/bin
 ```
+
+
+> **Note:** Make sure that the directory in your `$PATH`. If not, run:
+```bash
+export PATH=$PATH:/usr/local/bin
+```
+
+Include the line above in you `~/.bashrc` file or other configuration file for your current shell.
 
 ## Usage
 
