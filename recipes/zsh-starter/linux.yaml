@@ -14,7 +14,7 @@ stages:
         execute:
           run:
             - apt-get update
-            - apt-get install -y git curl
+            - apt-get install -y git curl python-minimal
             - apt-get install -y zsh 
         rollback:
           run:
@@ -160,6 +160,30 @@ stages:
             - sed -i -e 's/^ZSH_THEME=\"\"/ZSH_THEME=\"robbyrussell\"/g' ~/.zshrc
             - sed -i "/^autoload -U promptinit; promptinit/d" ~/.zshrc
             - sed -i "/^prompt pure/d" ~/.zshrc
+
+  - metadata:
+      name: Powerline fonts
+      url: https://github.com/powerline/fonts
+    steps:
+      - metadata:
+          name: Download
+        execute:
+          run: 
+            - git clone https://github.com/powerline/fonts ~/.terminer/powerline-fonts
+      - metadata:
+          name: Install
+        execute:
+          run:
+            - ~/.terminer/powerline-fonts/install.sh
+            - rm -rf ~/.terminer/powerline-fonts
+            - echo "**NOTE:** Fonts installed successfully. After recipe installation, set the 'Meslo' font in your terminal emulator."
+        rollback:
+          run:
+            - git clone https://github.com/powerline/fonts ~/.terminer/powerline-fonts
+            - ~/.terminer/powerline-fonts/uninstall.sh
+            - rm -rf ~/.terminer/powerline-fonts
+          root: true
+
   - metadata:
       name: Set as default shell
     steps:

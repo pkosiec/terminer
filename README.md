@@ -139,9 +139,11 @@ terminer install [recipe name]
 
 **Flags**
 
-  -f, --filepath string   Recipe file path
-  -h, --help              help for install
-  -u, --url string        Recipe URL
+```
+-f, --filepath string   Recipe file path
+-h, --help              help for install
+-u, --url string        Recipe URL
+```
 
 **Examples**
 
@@ -165,9 +167,11 @@ terminer rollback [recipe name]
 
 **Flags**
 
-  -f, --filepath string   Recipe file path
-  -h, --help              help for install
-  -u, --url string        Recipe URL
+```
+-f, --filepath string   Recipe file path
+-h, --help              help for install
+-u, --url string        Recipe URL
+```
 
 **Examples**
 
