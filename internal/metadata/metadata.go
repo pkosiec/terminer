@@ -4,7 +4,7 @@ package metadata
 const AppName string = "Terminer"
 
 // Version stores application name
-const Version string = "unreleased"
+var Version = "unreleased"
 
 // URL is an address of the application's repository
 const URL string = "https://github.com/pkosiec/terminer"
