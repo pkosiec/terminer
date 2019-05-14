@@ -1,15 +1,12 @@
 package recipecmd_test
 
 import (
-	"bytes"
 	"github.com/pkosiec/terminer/internal/recipecmd"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
@@ -187,13 +184,4 @@ func setupRemoteRecipeServer(t *testing.T, recipePath string) *httptest.Server {
 	}))
 
 	return server
-}
-
-func output(fn func()) string {
-	var b bytes.Buffer
-	log.SetOutput(&b)
-	fn()
-	log.SetOutput(os.Stderr)
-
-	return b.String()
 }

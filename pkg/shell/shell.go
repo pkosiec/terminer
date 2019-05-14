@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -14,9 +15,9 @@ type PrintFn func(string)
 
 // Command represents command to execute in given shell
 type Command struct {
-	Run   []string `yaml:"run",json:"run"`
-	Shell string   `yaml:"shell",json:"shell"`
-	Root  bool     `yaml:"root",json:"root"`
+	Run   []string `yaml:"run" json:"run"`
+	Shell string   `yaml:"shell" json:"shell"`
+	Root  bool     `yaml:"root" json:"root"`
 }
 
 // Shell gives an ability to run shell commands
@@ -82,13 +83,13 @@ func (s *shell) Exec(command Command, stopOnError bool) error {
 
 func (s *shell) runCmd(cmd *exec.Cmd) error {
 	stdOut, err := cmd.StdoutPipe()
-	defer stdOut.Close()
+	defer logErrorIfOccurred(stdOut.Close, "while closing stdOut")
 	if err != nil {
 		return err
 	}
 
 	stdErr, err := cmd.StderrPipe()
-	defer stdErr.Close()
+	defer logErrorIfOccurred(stdErr.Close, "while closing stdErr")
 	if err != nil {
 		return err
 	}
@@ -133,4 +134,11 @@ func (s *shell) isCommandAvailable(cmdName string) bool {
 	}
 
 	return true
+}
+
+func logErrorIfOccurred(fn func() error, context string) {
+	err := fn()
+	if err != nil {
+		log.Println(errors.Wrapf(err, context).Error())
+	}
 }
