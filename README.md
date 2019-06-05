@@ -98,16 +98,20 @@ stages:
           name: Step 1
           url: https://step1.stage1.example.com
         execute:
-          run: echo "Step 1 of Stage 1"
+          run:
+            - echo "Step 1 of Stage 1"
         rollback:
-          run: echo "Rollback of Step 1 of Stage 1"
+          run:
+            - echo "Rollback of Step 1 of Stage 1"
       - metadata:
           name: Step 2
           url: https://step2.stage1.example.com
         execute:
-          run: echo "Step 2 of Stage 1"
+          run:
+            - echo "Step 2 of Stage 1"
         rollback:
-          run: echo "Rollback of Step 2 of Stage 1"
+          run:
+            - echo "Rollback of Step 2 of Stage 1"
   - metadata:
       name: Stage 2
       description: Stage 2 description
@@ -117,10 +121,12 @@ stages:
           name: Step 1
           url: https://step1.stage2.example.com
         execute:
-          run: echo "Step 1 of Stage 1"
+          run:
+            - echo "Step 1 of Stage 1"
           shell: sh
         rollback:
-          run: echo "Rollback of Step 1 of Stage 2"
+          run:
+            - echo "Rollback of Step 1 of Stage 2"
 ```
 
 ## Available commands
