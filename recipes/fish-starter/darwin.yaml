@@ -12,7 +12,7 @@ stages:
           name: Download
         execute:
           run:
-            - curl https://github.com/fish-shell/fish-shell/releases/download/3.0.2/fish-3.0.2.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg
+            - curl https://github.com/fish-shell/fish-shell/releases/download/3.1.2/fish-3.1.2.pkg --create-dirs -sLo ~/.temp/fish-installer.pkg
         rollback:
           run:
             - rm -rf ~/.temp
