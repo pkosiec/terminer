@@ -82,6 +82,7 @@ stages:
         rollback:
           run:
             - rm -rf ~/.oh-my-zsh/custom/plugins/zsh-directory-history
+            - rm /usr/local/bin/dirhist
             - sed -i "/^source ~\/.oh-my-zsh\/custom\/plugins\/zsh-directory-history\/directory-history\.plugin\.zsh/d" ~/.zshrc
             - sed -i "/^bindkey .* directory-history-search-backward/d" ~/.zshrc
             - sed -i "/^bindkey .* directory-history-search-forward/d" ~/.zshrc
@@ -94,12 +95,10 @@ stages:
         execute:
           run:
             - git clone https://github.com/rupa/z.git ~/.oh-my-zsh/custom/z
-            - echo ". ~/.oh-my-zsh/custom/z/z.sh" >> ~/.zshrc
-            - sed -i 's/^plugins=(/plugins=(\ z\ /g' ~/.zshrc
+            - sed -i '' 's/^plugins=(/plugins=(\ z\ /g' ~/.zshrc
         rollback:
           run:
             - rm -rf ~/.oh-my-zsh/custom/z
-            - sed -i  "/^. ~\/.oh-my-zsh\/custom\/z\/z.sh/d" ~/.zshrc
             - sed -i 's/\ z\ /\ /g' ~/.zshrc
 
       - metadata:
@@ -135,31 +134,25 @@ stages:
           name: Download
         execute:
           run:
-            - git clone https://github.com/sindresorhus/pure.git ~/.oh-my-zsh/custom/pure-prompt
+            - git clone https://github.com/sindresorhus/pure.git ~/.zsh/pur
         rollback:
           run:
-            - rm -rf ~/.oh-my-zsh/custom/pure-prompt
+            - rm -rf ~/.zsh/pure
       - metadata:
           name: Install
         execute:
           run:
-            - echo "fpath=( \"$HOME/.zfunctions\" $fpath )" >> ~/.zshrc
-            - source ~/.zshrc
-            - mkdir ~/.zfunctions
-            - ln -s "$HOME/.oh-my-zsh/custom/pure-prompt/pure.zsh" "$HOME/.zfunctions/prompt_pure_setup"
-            - ln -s "$HOME/.oh-my-zsh/custom/pure-prompt/async.zsh" "$HOME/.zfunctions/async"
-            - sed -i -e 's/^ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"\"/g' ~/.zshrc
+            - echo "fpath+=\$HOME/.zsh/pure" >> ~/.zshrc
             - echo "autoload -U promptinit; promptinit" >> ~/.zshrc
             - echo "prompt pure" >> ~/.zshrc
+            - sed -i'' -e 's/^ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"\"/g' ~/.zshrc
           shell: zsh
         rollback:
           run:
-            - unlink ~/.zfunctions/prompt_pure_setup
-            - unlink ~/.zfunctions/async
-            - rm -rf ~/.zfunctions
-            - sed -i -e 's/^ZSH_THEME=\"\"/ZSH_THEME=\"robbyrussell\"/g' ~/.zshrc
-            - sed -i "/^autoload -U promptinit; promptinit/d" ~/.zshrc
-            - sed -i "/^prompt pure/d" ~/.zshrc
+            - sed -i '' "/^fpath\+=\$HOME\/\.zsh\/pure/d" ~/.zshrc
+            - sed -i '' "/^autoload -U promptinit; promptinit/d" ~/.zshrc
+            - sed -i '' "/^prompt pure/d" ~/.zshrc
+            - sed -i'' -e 's/^ZSH_THEME=\"\"/ZSH_THEME=\"robbyrussell\"/g' ~/.zshrc
 
   - metadata:
       name: Powerline fonts
