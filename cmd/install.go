@@ -11,10 +11,9 @@ var installCmd = &cobra.Command{
 	Use:   "install [recipe name]",
 	Short: "Installs a recipe from official repository, given path or URL",
 	Long: `Install command installs a recipe from the official recipe repository.
-You can use additional flags to install a recipe from a local or remote file.
-
-Examples:
-	terminer install zsh-starter
+You can use additional flags to install a recipe from a local or remote file.`,
+	Example:
+`	terminer install zsh-starter
 	terminer install -f ./recipe.yaml
 	terminer install --file /Users/sample-user/recipe.yml
 	terminer install -u https://example.com/recipe.yaml

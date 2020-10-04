@@ -11,10 +11,9 @@ var rollbackCmd = &cobra.Command{
 	Use:   "rollback [recipe name]",
 	Short: "Rollbacks a recipe from official repository, given path or URL",
 	Long: `Rollback command uninstalls a recipe from the official recipe repository.
-You can use additional flags to rollback a recipe from a local or remote file.
-
-Examples:
-	terminer rollback zsh-starter
+You can use additional flags to rollback a recipe from a local or remote file.`,
+Example:
+`	terminer rollback zsh-starter
 	terminer rollback -f ./recipe.yaml
 	terminer rollback --file /Users/sample-user/recipe.yml
 	terminer rollback -u https://example.com/recipe.yaml
