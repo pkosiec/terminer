@@ -83,30 +83,28 @@ func (s *shell) Exec(command Command, stopOnError bool) error {
 
 func (s *shell) runCmd(cmd *exec.Cmd) error {
 	stdOut, err := cmd.StdoutPipe()
-	defer logErrorIfOccurred(stdOut.Close, "while closing stdOut")
 	if err != nil {
 		return err
 	}
 
 	stdErr, err := cmd.StderrPipe()
-	defer logErrorIfOccurred(stdErr.Close, "while closing stdErr")
 	if err != nil {
 		return err
 	}
-
-	s.preparePipeScan(stdOut, s.printOut)
-	s.preparePipeScan(stdErr, s.printErr)
 
 	err = cmd.Start()
 	if err != nil {
 		return err
 	}
 
+	s.readAndPrint(stdOut, s.printOut)
+	s.readAndPrint(stdErr, s.printErr)
+
 	err = cmd.Wait()
 	return err
 }
 
-func (s *shell) preparePipeScan(pipe io.ReadCloser, printer PrintFn) {
+func (s *shell) readAndPrint(pipe io.ReadCloser, printer PrintFn) {
 	scanner := bufio.NewScanner(pipe)
 	scanner.Split(bufio.ScanLines)
 
