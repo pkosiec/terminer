@@ -13,6 +13,7 @@
 
 # IntelliJ IDEA
 .idea
+*.iml
 
 # Code coverage
 coverage.txt
