@@ -13,12 +13,12 @@ stages:
           name: Install
         execute:
           run:
-            - sudo apt update
-            - sudo apt install -y git curl python2-minimal
-            - sudo apt install -y zsh 
+            - sudo apt-get update
+            - sudo apt-get install -y git curl python2-minimal
+            - sudo apt-get install -y zsh 
         rollback:
           run:
-            - sudo apt remove -y zsh
+            - sudo apt-get remove -y zsh
 
   - metadata:
       name: Oh-my-Zsh
