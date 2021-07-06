@@ -13,12 +13,12 @@ stages:
           url: https://fishshell.com/
         execute:
           run:
-            - apt-get update
-            - apt-get install -y git curl
-            - apt-get -y install fish
+            - sudo apt-get update
+            - sudo apt-get install -y git curl
+            - sudo apt-get -y install fish
         rollback:
           run:
-            - apt-get -y remove fish
+            - sudo apt-get -y remove fish
 
   - metadata:
       name: Fisher - Package manager
@@ -41,22 +41,22 @@ stages:
           url: https://github.com/franciscolourenco/done
         execute:
           run:
-            - fisher add franciscolourenco/done
+            - fisher install franciscolourenco/done
           shell: fish
         rollback:
           run:
-            - fisher rm franciscolourenco/done
+            - fisher remove franciscolourenco/done
           shell: fish
       - metadata:
           name: jethrokuan/z
           url: https://github.com/jethrokuan/z
         execute:
           run:
-            - fisher add jethrokuan/z
+            - fisher install jethrokuan/z
           shell: fish
         rollback:
           run:
-            - fisher rm jethrokuan/z
+            - fisher remove jethrokuan/z
           shell: fish
 
   - metadata:
@@ -67,11 +67,11 @@ stages:
           name: Download & Install
         execute:
           run:
-            - fisher add rafaelrinaldi/pure
+            - fisher install rafaelrinaldi/pure
           shell: fish
         rollback:
           run:
-            - fisher rm rafaelrinaldi/pure
+            - fisher remove rafaelrinaldi/pure
           shell: fish
 
   - metadata:

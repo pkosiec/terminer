@@ -13,12 +13,12 @@ stages:
           name: Install
         execute:
           run:
-            - apt-get update
-            - apt-get install -y git curl python-minimal
-            - apt-get install -y zsh 
+            - sudo apt-get update
+            - sudo apt-get install -y git curl python2-minimal
+            - sudo apt-get install -y zsh 
         rollback:
           run:
-            - apt-get remove -y zsh
+            - sudo apt-get remove -y zsh
 
   - metadata:
       name: Oh-my-Zsh
@@ -95,7 +95,7 @@ stages:
         execute:
           run:
             - git clone https://github.com/rupa/z.git ~/.oh-my-zsh/custom/z
-            - sed -i '' 's/^plugins=(/plugins=(\ z\ /g' ~/.zshrc
+            - sed -i 's/^plugins=(/plugins=(\ z\ /g' ~/.zshrc
         rollback:
           run:
             - rm -rf ~/.oh-my-zsh/custom/z
@@ -134,7 +134,7 @@ stages:
           name: Download
         execute:
           run:
-            - git clone https://github.com/sindresorhus/pure.git ~/.zsh/pur
+            - git clone https://github.com/sindresorhus/pure.git ~/.zsh/pure
         rollback:
           run:
             - rm -rf ~/.zsh/pure
