@@ -2,7 +2,7 @@
 
 # Terminer
 
-[![Build Status](https://travis-ci.com/pkosiec/terminer.svg?branch=master)](https://travis-ci.com/pkosiec/terminer) [![Go Report Card](https://goreportcard.com/badge/github.com/pkosiec/terminer)](https://goreportcard.com/report/github.com/pkosiec/terminer) [![codecov](https://codecov.io/gh/pkosiec/terminer/branch/master/graph/badge.svg)](https://codecov.io/gh/pkosiec/terminer) ![GitHub release](https://img.shields.io/github/release/pkosiec/terminer.svg)
+[![Build Status](https://github.com/pkosiec/terminer/actions/workflows/branch.yaml/badge.svg)](https://github.com/pkosiec/mongo-seeding/actions) [![Go Report Card](https://goreportcard.com/badge/github.com/pkosiec/terminer)](https://goreportcard.com/report/github.com/pkosiec/terminer) [![codecov](https://codecov.io/gh/pkosiec/terminer/branch/master/graph/badge.svg)](https://codecov.io/gh/pkosiec/terminer) ![GitHub release](https://img.shields.io/github/release/pkosiec/terminer.svg)
 
 Upgrade your terminal experience with a single command.
 

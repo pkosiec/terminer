@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
-	"log"
 	"os/exec"
 	"strings"
 )
@@ -132,11 +131,4 @@ func (s *shell) isCommandAvailable(cmdName string) bool {
 	}
 
 	return true
-}
-
-func logErrorIfOccurred(fn func() error, context string) {
-	err := fn()
-	if err != nil {
-		log.Println(errors.Wrapf(err, context).Error())
-	}
 }
