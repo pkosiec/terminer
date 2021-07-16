@@ -15,7 +15,7 @@ import (
 	"github.com/pkosiec/terminer/pkg/shell"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
+	"sigs.k8s.io/yaml"
 )
 
 // AnyOS is OS string that matches any operating system
